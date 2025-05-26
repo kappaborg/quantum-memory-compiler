@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+venv/
+ENV/
+.env/
+.venv/
+
+# Egg info
+*.egg-info/
+
+# Test cache
+.pytest_cache/
+
+# Output folders
+quantum_memory_compiler/circuits/
+quantum_memory_compiler/outputs/
+quantum_memory_compiler/logs/
+
+# Jupyter
+.ipynb_checkpoints/
+Untitled*.ipynb
+
+# System files
+.DS_Store
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# Documentation build
+docs/_build/
+docs/build/ 

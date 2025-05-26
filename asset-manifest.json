@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/quantum-memory-compiler/static/css/main.e6c13ad2.css",
+    "main.js": "/quantum-memory-compiler/static/js/main.ef9cf4f2.js",
+    "static/js/453.ff482466.chunk.js": "/quantum-memory-compiler/static/js/453.ff482466.chunk.js",
+    "index.html": "/quantum-memory-compiler/index.html",
+    "main.e6c13ad2.css.map": "/quantum-memory-compiler/static/css/main.e6c13ad2.css.map",
+    "main.ef9cf4f2.js.map": "/quantum-memory-compiler/static/js/main.ef9cf4f2.js.map",
+    "453.ff482466.chunk.js.map": "/quantum-memory-compiler/static/js/453.ff482466.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.ef9cf4f2.js"
+  ]
+}
