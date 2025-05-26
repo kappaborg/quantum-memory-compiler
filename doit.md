@@ -1,4 +1,4 @@
-FRONT
+WEB APİSİNE BAĞLAMAK İÇİN
 cd /Users/kappasutra/QUANTUM\ MEMORY/web_dashboard/quantum-dashboard && npx serve -s build -l 3000 --single
 
 BACK

@@ -3,7 +3,7 @@ import { Alert, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/mate
 import React from 'react';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-const IS_DEMO_MODE = process.env.REACT_APP_API_URL?.includes('demo') || false;
+const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
 
 const Dashboard: React.FC = () => {
   return (

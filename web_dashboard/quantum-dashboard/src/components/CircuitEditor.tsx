@@ -31,7 +31,15 @@ import React, { useCallback, useState } from 'react';
 import { MockApiService } from '../services/mockApiService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-const IS_DEMO_MODE = process.env.REACT_APP_API_URL?.includes('demo') || false;
+const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
+
+// Debug logging
+console.log('🔧 CircuitEditor Debug:', {
+  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE,
+  IS_DEMO_MODE,
+  API_BASE_URL
+});
 
 interface Gate {
   id: string;
