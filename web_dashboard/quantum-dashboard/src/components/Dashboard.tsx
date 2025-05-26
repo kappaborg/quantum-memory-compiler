@@ -1,10 +1,20 @@
 import { CloudQueue, Computer, Memory, Speed } from '@mui/icons-material';
-import { Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
+import { Alert, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
 import React from 'react';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+const IS_DEMO_MODE = process.env.REACT_APP_API_URL?.includes('demo') || false;
 
 const Dashboard: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
+      {IS_DEMO_MODE && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          <strong>🚀 Demo Mode</strong> - This is a demonstration of the Quantum Memory Compiler web interface. 
+          To use full functionality, please run the API server locally and access the dashboard at localhost.
+        </Alert>
+      )}
+      
       <Typography variant="h4" sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>
         <Computer sx={{ mr: 2, color: '#2E86AB' }} />
         Quantum Memory Compiler Dashboard

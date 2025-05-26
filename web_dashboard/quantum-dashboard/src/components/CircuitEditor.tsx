@@ -29,6 +29,8 @@ import {
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 interface Gate {
   id: string;
   type: string;
@@ -171,7 +173,7 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('/api/circuit/visualize', {
+      const response = await axios.post(`${API_BASE_URL}/api/circuit/visualize`, {
         circuit: {
           name: circuit.name,
           qubits: circuit.qubits,
@@ -200,7 +202,7 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('/api/circuit/simulate', {
+      const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
         circuit: {
           name: circuit.name,
           qubits: circuit.qubits,
@@ -225,7 +227,7 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('/api/circuit/compile', {
+      const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
         circuit: {
           name: circuit.name,
           qubits: circuit.qubits,
@@ -247,7 +249,7 @@ const CircuitEditor: React.FC = () => {
 
   const saveCircuit = async (name: string) => {
     try {
-      await axios.post('/api/cache/circuit', {
+      await axios.post(`${API_BASE_URL}/api/cache/circuit`, {
         name,
         circuit: {
           name: circuit.name,
@@ -269,7 +271,7 @@ const CircuitEditor: React.FC = () => {
 
   const exportCircuit = async (format: string) => {
     try {
-      const response = await axios.post('/api/circuit/download', {
+      const response = await axios.post(`${API_BASE_URL}/api/circuit/download`, {
         circuit: {
           name: circuit.name,
           qubits: circuit.qubits,

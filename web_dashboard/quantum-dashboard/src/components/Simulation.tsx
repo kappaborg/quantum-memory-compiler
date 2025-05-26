@@ -37,6 +37,8 @@ import {
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 // Recharts import with error handling
 let BarChart: any, Bar: any, XAxis: any, YAxis: any, CartesianGrid: any, Tooltip: any, ResponsiveContainer: any;
 try {
@@ -113,7 +115,7 @@ const Simulation: React.FC = () => {
     setError(null);
     
     try {
-      const response = await axios.post('/api/circuit/simulate', {
+      const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
         circuit,
         ...simulationParams
       });

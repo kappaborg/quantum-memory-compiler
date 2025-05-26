@@ -36,6 +36,8 @@ import {
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 interface CompilationResult {
   success: boolean;
   compiled_circuit: any;
@@ -99,7 +101,7 @@ const Compilation: React.FC = () => {
     setError(null);
     
     try {
-      const response = await axios.post('/api/circuit/compile', {
+      const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
         circuit,
         ...compilationParams
       });
