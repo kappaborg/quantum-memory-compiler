@@ -373,24 +373,54 @@ if HAS_FLASK and HAS_SOCKETIO:
                 
             # Convert web dashboard format to backend format
             circuit_data = data['circuit']
-            converted_data = {
-                'name': circuit_data.get('name', 'Unnamed Circuit'),
-                'qubits': circuit_data.get('width', circuit_data.get('qubits', 0)),
-                'gates': [],
-                'measurements': circuit_data.get('measurements', [])
-            }
+            print(f"📊 Circuit data received: {circuit_data}")
             
-            # Convert gates format
-            for gate in circuit_data.get('gates', []):
-                converted_gate = {
-                    'type': gate.get('type'),
-                    'qubits': gate.get('qubits', []),
-                    'params': gate.get('parameters', gate.get('params', []))
-                }
-                converted_data['gates'].append(converted_gate)
+            # Create circuit directly instead of using from_dict
+            from quantum_memory_compiler.core.qubit import Qubit
+            from quantum_memory_compiler.core.gate import Gate, GateType
             
-            # Create circuit from converted JSON
-            circuit = Circuit.from_dict(converted_data)
+            print("🔧 Imported Gate and GateType successfully")
+            
+            qubits_count = circuit_data.get('qubits', circuit_data.get('width', 2))
+            circuit_name = circuit_data.get('name', 'Unnamed Circuit')
+            
+            print(f"🔧 Creating circuit: name={circuit_name}, qubits={qubits_count}")
+            
+            # Create circuit with qubits
+            circuit = Circuit()
+            circuit.name = circuit_name  # Set name after creation
+            qubits = [Qubit(i) for i in range(qubits_count)]  # Use integer IDs
+            for qubit in qubits:
+                circuit.add_qubit(qubit)
+            
+            print(f"🔧 Circuit created with {len(circuit.qubits)} qubits")
+            
+            # Add gates
+            for gate_data in circuit_data.get('gates', []):
+                gate_type_str = gate_data.get('type')
+                gate_qubits = gate_data.get('qubits', [])
+                gate_params = gate_data.get('parameters', gate_data.get('params', []))
+                
+                print(f"🔧 Processing gate: {gate_type_str} on qubits {gate_qubits}")
+                
+                if gate_type_str and gate_qubits:
+                    # Convert string gate type to GateType enum
+                    try:
+                        gate_type = getattr(GateType, gate_type_str.upper())
+                        print(f"🔧 Converted gate type: {gate_type_str} -> {gate_type}")
+                    except AttributeError:
+                        print(f"⚠️  Unknown gate type: {gate_type_str}, skipping...")
+                        continue
+                    
+                    # Map qubit indices to actual qubit objects
+                    target_qubits = [qubits[i] for i in gate_qubits if i < len(qubits)]
+                    
+                    if target_qubits:
+                        # Use the correct add_gate method signature
+                        circuit.add_gate(gate_type, *target_qubits, parameters=gate_params)
+                        print(f"🔧 Added gate: type={gate_type} to qubits {[q.id for q in target_qubits]}")
+            
+            print(f"✅ Circuit created successfully, width: {circuit.width}, gates: {len(circuit.gates)}")
             
             # Simulation parameters
             shots = data.get('shots', 1024)
@@ -413,7 +443,11 @@ if HAS_FLASK and HAS_SOCKETIO:
             print("✅ Simulation completed successfully")
             # Return results
             return jsonify({
+                "success": True,
                 "results": results,
+                "execution_time": 0.1,  # Placeholder
+                "shots": shots,
+                "backend": "qasm_simulator",
                 "parameters": {
                     "shots": shots,
                     "noise": use_noise,
@@ -423,6 +457,8 @@ if HAS_FLASK and HAS_SOCKETIO:
                 
         except Exception as e:
             print(f"❌ Simulation error: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({"error": str(e)}), 500
 
     @app.route('/api/circuit/compile', methods=['POST'])
@@ -448,24 +484,45 @@ if HAS_FLASK and HAS_SOCKETIO:
                 
             # Convert web dashboard format to backend format
             circuit_data = data['circuit']
-            converted_data = {
-                'name': circuit_data.get('name', 'Unnamed Circuit'),
-                'qubits': circuit_data.get('width', circuit_data.get('qubits', 0)),
-                'gates': [],
-                'measurements': circuit_data.get('measurements', [])
-            }
+            print(f"📊 Circuit data received: {circuit_data}")
             
-            # Convert gates format
-            for gate in circuit_data.get('gates', []):
-                converted_gate = {
-                    'type': gate.get('type'),
-                    'qubits': gate.get('qubits', []),
-                    'params': gate.get('parameters', gate.get('params', []))
-                }
-                converted_data['gates'].append(converted_gate)
+            # Create circuit directly instead of using from_dict
+            from quantum_memory_compiler.core.qubit import Qubit
+            from quantum_memory_compiler.core.gate import Gate, GateType
             
-            # Create circuit from converted JSON
-            circuit = Circuit.from_dict(converted_data)
+            qubits_count = circuit_data.get('qubits', circuit_data.get('width', 2))
+            circuit_name = circuit_data.get('name', 'Unnamed Circuit')
+            
+            # Create circuit with qubits
+            circuit = Circuit()
+            circuit.name = circuit_name  # Set name after creation
+            qubits = [Qubit(i) for i in range(qubits_count)]  # Use integer IDs
+            for qubit in qubits:
+                circuit.add_qubit(qubit)
+            
+            # Add gates
+            for gate_data in circuit_data.get('gates', []):
+                gate_type_str = gate_data.get('type')
+                gate_qubits = gate_data.get('qubits', [])
+                gate_params = gate_data.get('parameters', gate_data.get('params', []))
+                
+                if gate_type_str and gate_qubits:
+                    # Convert string gate type to GateType enum
+                    try:
+                        gate_type = getattr(GateType, gate_type_str.upper())
+                    except AttributeError:
+                        print(f"⚠️  Unknown gate type: {gate_type_str}, skipping...")
+                        continue
+                    
+                    # Map qubit indices to actual qubit objects
+                    target_qubits = [qubits[i] for i in gate_qubits if i < len(qubits)]
+                    
+                    if target_qubits:
+                        # Use the correct add_gate method signature
+                        circuit.add_gate(gate_type, *target_qubits, parameters=gate_params)
+                        print(f"🔧 Added gate: type={gate_type} to qubits {[q.id for q in target_qubits]}")
+            
+            print(f"✅ Circuit created successfully, width: {circuit.width}, gates: {len(circuit.gates)}")
             
             # Compilation parameters
             strategy = data.get('strategy', 'balanced')
@@ -501,12 +558,15 @@ if HAS_FLASK and HAS_SOCKETIO:
             }
             
             return jsonify({
+                "success": True,
                 "compiled_circuit": compiled_circuit.to_dict(),
                 "metrics": metrics
             })
                 
         except Exception as e:
             print(f"❌ Compilation error: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({"error": str(e)}), 500
 
     @app.route('/api/memory/profile', methods=['POST'])
@@ -530,7 +590,41 @@ if HAS_FLASK and HAS_SOCKETIO:
                 
             # Create circuit from JSON
             circuit_data = data['circuit']
-            circuit = Circuit.from_dict(circuit_data)
+            
+            # Create circuit directly instead of using from_dict
+            from quantum_memory_compiler.core.qubit import Qubit
+            from quantum_memory_compiler.core.gate import Gate, GateType
+            
+            qubits_count = circuit_data.get('qubits', circuit_data.get('width', 2))
+            circuit_name = circuit_data.get('name', 'Unnamed Circuit')
+            
+            # Create circuit with qubits
+            circuit = Circuit()
+            circuit.name = circuit_name  # Set name after creation
+            qubits = [Qubit(i) for i in range(qubits_count)]  # Use integer IDs
+            for qubit in qubits:
+                circuit.add_qubit(qubit)
+            
+            # Add gates
+            for gate_data in circuit_data.get('gates', []):
+                gate_type_str = gate_data.get('type')
+                gate_qubits = gate_data.get('qubits', [])
+                gate_params = gate_data.get('parameters', gate_data.get('params', []))
+                
+                if gate_type_str and gate_qubits:
+                    # Convert string gate type to GateType enum
+                    try:
+                        gate_type = getattr(GateType, gate_type_str.upper())
+                    except AttributeError:
+                        print(f"⚠️  Unknown gate type: {gate_type_str}, skipping...")
+                        continue
+                    
+                    # Map qubit indices to actual qubit objects
+                    target_qubits = [qubits[i] for i in gate_qubits if i < len(qubits)]
+                    
+                    if target_qubits:
+                        gate = Gate(gate_type, target_qubits, parameters=gate_params)
+                        circuit.add_gate(gate)
             
             print(f"✅ Circuit created successfully, width: {circuit.width}, gates: {len(circuit.gates)}")
             
@@ -960,7 +1054,7 @@ if HAS_FLASK and HAS_SOCKETIO:
             data = request.get_json() or {}
             
             # Extract benchmark parameters
-            qubit_range = data.get('qubit_range', [4, 6, 8])
+            qubit_range = data.get('qubit_range', [4, 6])
             gate_counts = data.get('gate_counts', [50, 100])
             shots = data.get('shots', 100)
             

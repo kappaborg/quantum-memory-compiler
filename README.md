@@ -1,229 +1,233 @@
-# Quantum Memory Compiler 🚀
+# Quantum Memory Compiler
 
-**Advanced Quantum Circuit Compiler with IBM Quantum Integration**
+Memory-aware compiler and simulator system for quantum computers to enable more efficient program development.
 
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-blue)](https://USERNAME.github.io/quantum-memory-compiler)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org)
+## 🎯 Overview
 
-## 🌟 Features
+Quantum Memory Compiler is a comprehensive tool that optimizes quantum circuits in terms of memory usage and provides simulation, compilation, and visualization features all in one place. With memory hierarchy awareness, qubit recycling, and meta-compiler features, it enables you to create more efficient quantum circuits.
 
-### 🔬 **Quantum Circuit Compilation**
-- Advanced quantum circuit optimization
-- Memory-aware compilation strategies
-- GPU-accelerated simulation
-- Real-time circuit visualization
+## ✨ Features
 
-### 🌐 **IBM Quantum Integration**
-- Direct connection to IBM Quantum Network
-- Real hardware execution
-- Backend status monitoring
-- Token-based authentication
+- **🧠 Memory-aware compilation**: Optimizes quantum circuits in terms of memory usage
+- **♻️ Qubit recycling**: Reuses qubits after quantum states are released
+- **🏗️ Memory hierarchy**: Simulates different memory levels with various access times and coherence times
+- **🤖 Meta-compiler**: Evaluates various compilation strategies to find the best result
+- **📊 Visualization tools**: Visualizes circuits and memory usage
+- **🔊 Noise models**: Simulation with realistic noise effects
+- **🛠️ Error mitigation**: Implements various error mitigation techniques
+- **🖥️ Multi-interface**: CLI, API, Jupyter, VSCode, Cursor extensions, and Web Dashboard
 
-### 💻 **Modern Web Interface**
-- React + TypeScript frontend
-- Material-UI components
-- Real-time WebSocket updates
-- Interactive circuit builder
+## 🚀 Quick Start
 
-### ⚡ **Performance Optimization**
-- GPU acceleration with JAX
-- Parallel processing (8 workers)
-- Memory optimization (4GB limit)
-- JIT compilation with Numba
+### Installation
 
-## 🚀 Live Demo
-
-**Try it now:** [https://USERNAME.github.io/quantum-memory-compiler](https://USERNAME.github.io/quantum-memory-compiler)
-
-*Replace USERNAME with your GitHub username*
-
-## 📦 Installation
-
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- npm or yarn
-
-### Backend Setup
 ```bash
 # Clone the repository
-git clone https://github.com/USERNAME/quantum-memory-compiler.git
-cd quantum-memory-compiler
+git clone https://github.com/kappaborg/quantum_memory_compiler.git
+cd quantum_memory_compiler
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Linux/Mac
+# or venv\Scripts\activate  # Windows
 
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Start API server
-python -m quantum_memory_compiler.api --port 5001
+# Install the package
+pip install -e .
 ```
 
-### Frontend Setup
+### Run Demo
+
 ```bash
-# Navigate to React app
+# Run comprehensive demo
+python demo_presentation.py
+```
+
+This demo shows all features and creates visualizations in the `demo_outputs/` directory.
+
+## 📖 Usage
+
+### 🌐 Web Dashboard (NEW!)
+
+```bash
+# Start API server
+qmc api --port 5000 --debug
+
+# In another terminal, start web dashboard
 cd web_dashboard/quantum-dashboard
-
-# Install dependencies
 npm install
-
-# Start development server
 npm start
 ```
 
-## 🔧 Usage
+Open `http://localhost:3000` for the modern web interface featuring:
+- **Interactive Circuit Editor**: Visual quantum gate placement
+- **Real-time Monitoring**: System status and statistics
+- **Circuit Visualization**: Live circuit diagrams
+- **Responsive Design**: Works on desktop, tablet, and mobile
 
-### 1. **Start the Services**
+### 🖥️ Command Line Interface (CLI)
+
 ```bash
-# Terminal 1 - API Server
-python -m quantum_memory_compiler.api --port 5001
+# Show help
+qmc --help
 
-# Terminal 2 - Web Dashboard
-cd web_dashboard/quantum-dashboard && npm start
+# Visualize circuit
+qmc visualize circuit.qmc --output circuit.png
+
+# Compile circuit
+qmc compile circuit.qmc --output compiled_circuit.qmc --strategy memory
+
+# Simulate circuit
+qmc simulate circuit.qmc --shots 1024 --noise --mitigation
+
+# Create memory profile
+qmc profile circuit.qmc --output profile.png
+
+# Run examples
+qmc examples --list
+qmc examples --run bell_state
 ```
 
-### 2. **Access the Web Interface**
-- Open: http://localhost:3001
-- Navigate to "IBM Quantum" page
-- Set your IBM Quantum token
-- Start building and executing circuits!
+### 🔌 Cursor IDE Extension
 
-### 3. **IBM Quantum Setup**
-1. Get your token from [IBM Quantum](https://quantum.ibm.com/)
-2. Click "Token Ayarla" in the web interface
-3. Paste your token and save
-4. Access real quantum backends!
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React Web     │    │   Flask API     │    │  IBM Quantum    │
-│   Dashboard     │◄──►│    Server       │◄──►│   Network       │
-│  (Port 3001)    │    │  (Port 5001)    │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-### Components
-- **Frontend**: React + TypeScript + Material-UI
-- **Backend**: Flask + SocketIO + Qiskit
-- **Integration**: IBM Quantum Runtime
-- **Acceleration**: JAX + Numba + GPU
-
-## 📊 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/info` | GET | API information |
-| `/api/circuit/visualize` | POST | Circuit visualization |
-| `/api/circuit/simulate` | POST | Circuit simulation |
-| `/api/circuit/compile` | POST | Circuit compilation |
-| `/api/ibm/status` | GET | IBM Quantum status |
-| `/api/ibm/backends` | GET | Available backends |
-| `/api/ibm/execute` | POST | Execute on IBM Quantum |
-
-## 🚀 Deployment
-
-### GitHub Pages Deployment
 ```bash
-# Make sure you're on main branch
-git checkout main
+# Install Cursor extension
+qmc cursor --install
 
-# Run deployment script
-./deploy.sh
+# Check status
+qmc cursor --status
 ```
 
-The script will:
-1. Build the React app for production
-2. Create/update gh-pages branch
-3. Deploy to GitHub Pages
-4. Your site will be live at: `https://USERNAME.github.io/REPOSITORY_NAME`
+### 🌐 API Server
 
-### Manual Deployment
 ```bash
-# Build React app
-cd web_dashboard/quantum-dashboard
-npm run build
-
-# Deploy build folder to your hosting service
+# Start API server
+qmc api --port 5000 --debug
 ```
 
-## 🔬 Examples
+### 📓 Jupyter Notebook Integration
 
-### Bell State Circuit
 ```python
-from quantum_memory_compiler.core.circuit import Circuit
-from quantum_memory_compiler.core.gates import HGate, CNOTGate
+# Load magic commands
+%load_ext quantum_memory_compiler_magic
 
-# Create Bell state
+# Define circuit
+%%qmc_circuit bell_state
+from quantum_memory_compiler.core import Circuit, GateType
 circuit = Circuit(2)
-circuit.add_gate(HGate(), 0)
-circuit.add_gate(CNOTGate(), 0, 1)
+circuit.add_gate(GateType.H, 0)
+circuit.add_gate(GateType.CNOT, [0, 1])
 
-# Visualize and simulate
-circuit.visualize()
-results = circuit.simulate(shots=1024)
+# Simulate
+%qmc_simulate bell_state shots=2048 noise=True mitigation=True
+
+# Compile
+%qmc_compile bell_state strategy=meta
 ```
 
-### IBM Quantum Execution
-```javascript
-// Web interface - IBM Quantum execution
-const circuit = {
-  name: "bell_state",
-  qubits: 2,
-  gates: [
-    { type: "H", qubits: [0] },
-    { type: "CNOT", qubits: [0, 1] }
-  ]
-};
+## 🏗️ Architecture Overview
 
-const result = await ibmQuantumService.executeCircuit(
-  circuit, 
-  "ibm_brisbane", 
-  1024
-);
+```
+📦 Core (Base Components)
+├── Circuit: Quantum circuit structure
+├── Gate: Quantum gates
+├── Qubit: Quantum bits
+└── Visualization: Visualization tools
+
+⚙️ Compiler
+├── QuantumCompiler: Main compiler
+├── Optimizer: Gate optimization
+├── Mapper: Physical qubit mapping
+└── MetaCompiler: Strategy evaluation
+
+💾 Memory (Memory Management)
+├── Hierarchy: Memory level definitions
+├── Manager: Qubit allocation and recycling
+└── Profiler: Memory usage analysis
+
+🔬 Simulation
+├── Simulator: Quantum circuit simulator
+├── NoiseModel: Noise modeling
+└── ErrorMitigation: Error mitigation
+
+🖥️ Interface
+├── CLI: Command line interface
+├── API: REST API server
+├── Web Dashboard: React-based web interface
+├── Jupyter: Notebook integration
+└── Cursor: IDE extension
 ```
 
-## 🤝 Contributing
+## 📚 Examples
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+The project includes the following example circuits:
+
+- **Bell State**: Basic quantum entanglement example
+- **Grover Search**: Quantum search algorithm
+- **Quantum Fourier Transform**: QFT implementation
+- **Error Mitigation Demo**: Error mitigation techniques
+
+```bash
+# Run examples
+python -c "from quantum_memory_compiler.examples import bell_state_example; bell_state_example.main()"
+python -c "from quantum_memory_compiler.examples import quantum_fourier_transform; quantum_fourier_transform.main()"
+```
+
+## 🗺️ Development Roadmap
+
+For detailed information about completed features and future development plans, see our comprehensive [Development Roadmap](ROADMAP.md).
+
+### Current Status (v2.1.0)
+- ✅ Core quantum circuit framework
+- ✅ Memory-aware compilation system
+- ✅ Advanced CLI with rich interface
+- ✅ REST API server
+- ✅ **Web Dashboard with React + TypeScript** 🆕
+- ✅ Jupyter and Cursor IDE integrations
+- ✅ Complete English localization
+
+### Upcoming Features
+- ⚡ GPU acceleration for simulations
+- 🔗 IBM Quantum hardware integration
+- 🤖 AI-powered circuit optimization
+- 📱 Mobile application
+- 🌍 Distributed computing support
+
+## 🛠️ Development
+
+### Running Tests
+
+```bash
+# Run all tests
+python -m pytest quantum_memory_compiler/tests/
+
+# Run specific test file
+python -m pytest quantum_memory_compiler/tests/test_circuit.py
+```
+
+### Code Quality
+
+```bash
+# Linting
+pylint quantum_memory_compiler/
+
+# Formatting
+black quantum_memory_compiler/
+```
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 👨‍💻 Developer
+## 🤝 Contributing
 
-**kappasutra**
-- GitHub: [@kappasutra](https://github.com/kappasutra)
-- Quantum Computing Enthusiast
-- Full-Stack Developer
+For those who want to contribute, please create a pull request. For major changes, we recommend opening an issue first to discuss.
 
-## 🙏 Acknowledgments
+For detailed contribution guidelines and development roadmap, see [ROADMAP.md](ROADMAP.md).
 
-- IBM Quantum Network for quantum computing access
-- Qiskit team for quantum computing framework
-- React and Material-UI communities
-- Open source quantum computing community
+## 📞 Contact
 
-## 📈 Project Stats
+**Developer:** kappasutra  
+**Email:** kappasutra@quantum.dev  
+**GitHub:** https://github.com/kappasutra/quantum_memory_compiler
 
-- **Languages**: Python, TypeScript, JavaScript
-- **Frameworks**: React, Flask, Qiskit
-- **Features**: 20+ quantum gates, GPU acceleration, real-time updates
-- **Backends**: 3+ simulators, IBM Quantum hardware
-- **Performance**: 8-worker parallel processing, 4GB memory optimization
-
----
-
-**⭐ Star this repository if you find it useful!**
-
-**🚀 Try the live demo:** [https://USERNAME.github.io/quantum-memory-compiler](https://USERNAME.github.io/quantum-memory-compiler) 
+For questions and support, please use GitHub Issues or contact the developer directly. 
