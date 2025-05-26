@@ -114,6 +114,10 @@ class IBMQuantumService {
     monitor: boolean = true
   ): Promise<IBMExecutionResult> {
     try {
+      if (IS_DEMO_MODE) {
+        return await MockApiService.executeIBMCircuit(circuit, backend, shots);
+      }
+      
       const token = this.getToken();
       const response = await axios.post(`${API_BASE_URL}/api/ibm/execute`, {
         circuit,

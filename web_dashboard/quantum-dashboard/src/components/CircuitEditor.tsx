@@ -216,7 +216,11 @@ const CircuitEditor: React.FC = () => {
         setResult({ type: 'image', url: imageUrl });
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Visualization failed');
+      if (IS_DEMO_MODE) {
+        setError('Demo mode: This feature requires a real API server connection.');
+      } else {
+        setError(err.response?.data?.error || 'Visualization failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -255,7 +259,11 @@ const CircuitEditor: React.FC = () => {
         setResult({ type: 'simulation', data: response.data });
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Simulation failed');
+      if (IS_DEMO_MODE) {
+        setError('Demo mode: This feature requires a real API server connection.');
+      } else {
+        setError(err.response?.data?.error || 'Simulation failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -293,7 +301,11 @@ const CircuitEditor: React.FC = () => {
         setResult({ type: 'compilation', data: response.data });
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Compilation failed');
+      if (IS_DEMO_MODE) {
+        setError('Demo mode: This feature requires a real API server connection.');
+      } else {
+        setError(err.response?.data?.error || 'Compilation failed');
+      }
     } finally {
       setLoading(false);
     }

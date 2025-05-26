@@ -47,6 +47,15 @@ import {
 
 import ibmQuantumService, { IBMBackend, IBMExecutionResult, IBMStatus } from '../services/ibmQuantumService';
 
+const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
+
+// Debug logging
+console.log('🔧 IBMQuantumConnection Debug:', {
+  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE,
+  IS_DEMO_MODE
+});
+
 const IBMQuantumConnection: React.FC = () => {
   const [token, setToken] = useState<string>('');
   const [status, setStatus] = useState<IBMStatus | null>(null);
@@ -168,6 +177,15 @@ const IBMQuantumConnection: React.FC = () => {
         <CloudIcon sx={{ mr: 2, color: '#2E86AB' }} />
         IBM Quantum Bağlantısı
       </Typography>
+
+      {IS_DEMO_MODE && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          <strong>🚀 Demo Mode</strong> - IBM Quantum integration is in demo mode. 
+          To connect with your real IBM Quantum token, please run the API server locally.
+          <br />
+          <strong>Demo Features:</strong> Mock backends, simulated status, educational interface.
+        </Alert>
+      )}
 
       {/* Status Card */}
       <Card sx={{ mb: 3 }}>

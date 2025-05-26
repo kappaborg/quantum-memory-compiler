@@ -136,4 +136,39 @@ export class MockApiService {
       count: 1
     };
   }
+
+  static async executeIBMCircuit(circuit: MockCircuit, backend: string, shots: number): Promise<any> {
+    await this.delay(3000); // Longer delay to simulate real quantum execution
+    
+    // Generate realistic quantum results
+    const results: Record<string, number> = {};
+    
+    if (circuit.gates.some(g => g.type === 'H') && circuit.gates.some(g => g.type === 'CNOT')) {
+      // Bell state results
+      results['00'] = Math.floor(shots * 0.5 + (Math.random() - 0.5) * 50);
+      results['11'] = shots - results['00'];
+    } else if (circuit.gates.some(g => g.type === 'H')) {
+      // Superposition
+      results['0'] = Math.floor(shots * 0.5 + (Math.random() - 0.5) * 30);
+      results['1'] = shots - results['0'];
+    } else {
+      // Default distribution
+      results['00'] = Math.floor(shots * 0.7);
+      results['01'] = Math.floor(shots * 0.1);
+      results['10'] = Math.floor(shots * 0.1);
+      results['11'] = shots - results['00'] - results['01'] - results['10'];
+    }
+
+    return {
+      success: true,
+      job_id: `demo_job_${Date.now()}`,
+      status: 'COMPLETED',
+      backend: backend,
+      shots: shots,
+      results: results,
+      execution_time: 2.5 + Math.random() * 1.5,
+      queue_time: 0.1 + Math.random() * 0.5,
+      error_message: null
+    };
+  }
 } 
