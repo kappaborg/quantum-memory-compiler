@@ -28,8 +28,10 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { MockApiService } from '../services/mockApiService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+const IS_DEMO_MODE = process.env.REACT_APP_API_URL?.includes('demo') || false;
 
 interface Gate {
   id: string;
@@ -173,8 +175,8 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/circuit/visualize`, {
-        circuit: {
+      if (IS_DEMO_MODE) {
+        const mockResult = await MockApiService.visualizeCircuit({
           name: circuit.name,
           qubits: circuit.qubits,
           gates: circuit.gates.map(g => ({
@@ -183,14 +185,28 @@ const CircuitEditor: React.FC = () => {
             parameters: g.parameters
           })),
           measurements: circuit.measurements
-        }
-      }, {
-        responseType: 'blob'
-      });
-      
-      // Create image URL from blob
-      const imageUrl = URL.createObjectURL(response.data);
-      setResult({ type: 'image', url: imageUrl });
+        });
+        setResult({ type: 'demo', message: mockResult.message });
+      } else {
+        const response = await axios.post(`${API_BASE_URL}/api/circuit/visualize`, {
+          circuit: {
+            name: circuit.name,
+            qubits: circuit.qubits,
+            gates: circuit.gates.map(g => ({
+              type: g.type,
+              qubits: g.qubits,
+              parameters: g.parameters
+            })),
+            measurements: circuit.measurements
+          }
+        }, {
+          responseType: 'blob'
+        });
+        
+        // Create image URL from blob
+        const imageUrl = URL.createObjectURL(response.data);
+        setResult({ type: 'image', url: imageUrl });
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Visualization failed');
     } finally {
@@ -202,8 +218,8 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
-        circuit: {
+      if (IS_DEMO_MODE) {
+        const mockResult = await MockApiService.simulateCircuit({
           name: circuit.name,
           qubits: circuit.qubits,
           gates: circuit.gates.map(g => ({
@@ -212,10 +228,24 @@ const CircuitEditor: React.FC = () => {
             parameters: g.parameters
           })),
           measurements: circuit.measurements
-        },
-        shots: 1024
-      });
-      setResult({ type: 'simulation', data: response.data });
+        }, { shots: 1024 });
+        setResult({ type: 'simulation', data: mockResult });
+      } else {
+        const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
+          circuit: {
+            name: circuit.name,
+            qubits: circuit.qubits,
+            gates: circuit.gates.map(g => ({
+              type: g.type,
+              qubits: g.qubits,
+              parameters: g.parameters
+            })),
+            measurements: circuit.measurements
+          },
+          shots: 1024
+        });
+        setResult({ type: 'simulation', data: response.data });
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Simulation failed');
     } finally {
@@ -227,8 +257,8 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
-        circuit: {
+      if (IS_DEMO_MODE) {
+        const mockResult = await MockApiService.compileCircuit({
           name: circuit.name,
           qubits: circuit.qubits,
           gates: circuit.gates.map(g => ({
@@ -237,9 +267,23 @@ const CircuitEditor: React.FC = () => {
             parameters: g.parameters
           })),
           measurements: circuit.measurements
-        }
-      });
-      setResult({ type: 'compilation', data: response.data });
+        }, { strategy: 'demo' });
+        setResult({ type: 'compilation', data: mockResult });
+      } else {
+        const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
+          circuit: {
+            name: circuit.name,
+            qubits: circuit.qubits,
+            gates: circuit.gates.map(g => ({
+              type: g.type,
+              qubits: g.qubits,
+              parameters: g.parameters
+            })),
+            measurements: circuit.measurements
+          }
+        });
+        setResult({ type: 'compilation', data: response.data });
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Compilation failed');
     } finally {
@@ -634,7 +678,11 @@ const CircuitEditor: React.FC = () => {
         <Card sx={{ mt: 3 }}>
           <CardContent>
             <Typography variant="h6" sx={{ mb: 2 }}>Results</Typography>
-            {result.type === 'image' ? (
+            {result.type === 'demo' ? (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                {result.message}
+              </Alert>
+            ) : result.type === 'image' ? (
               <Box sx={{ textAlign: 'center' }}>
                 <img 
                   src={result.url} 

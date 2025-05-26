@@ -36,8 +36,10 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { MockApiService } from '../services/mockApiService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+const IS_DEMO_MODE = process.env.REACT_APP_API_URL?.includes('demo') || false;
 
 // Recharts import with error handling
 let BarChart: any, Bar: any, XAxis: any, YAxis: any, CartesianGrid: any, Tooltip: any, ResponsiveContainer: any;
@@ -115,11 +117,16 @@ const Simulation: React.FC = () => {
     setError(null);
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
-        circuit,
-        ...simulationParams
-      });
-      setResult(response.data);
+      if (IS_DEMO_MODE) {
+        const mockResult = await MockApiService.simulateCircuit(circuit, simulationParams);
+        setResult(mockResult);
+      } else {
+        const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
+          circuit,
+          ...simulationParams
+        });
+        setResult(response.data);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Simulation failed');
     } finally {

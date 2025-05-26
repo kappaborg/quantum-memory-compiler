@@ -35,8 +35,10 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { MockApiService } from '../services/mockApiService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+const IS_DEMO_MODE = process.env.REACT_APP_API_URL?.includes('demo') || false;
 
 interface CompilationResult {
   success: boolean;
@@ -101,11 +103,16 @@ const Compilation: React.FC = () => {
     setError(null);
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
-        circuit,
-        ...compilationParams
-      });
-      setResult(response.data);
+      if (IS_DEMO_MODE) {
+        const mockResult = await MockApiService.compileCircuit(circuit, compilationParams);
+        setResult(mockResult);
+      } else {
+        const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
+          circuit,
+          ...compilationParams
+        });
+        setResult(response.data);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Compilation failed');
     } finally {
