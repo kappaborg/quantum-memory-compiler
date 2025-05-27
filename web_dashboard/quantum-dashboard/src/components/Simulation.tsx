@@ -34,12 +34,35 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { ApiService } from '../services/apiService';
 import { MockApiService } from '../services/mockApiService';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
+// Function to get API configuration from localStorage
+const getApiConfig = () => {
+  const savedConfig = localStorage.getItem('quantum_api_config');
+  if (savedConfig) {
+    try {
+      return JSON.parse(savedConfig);
+    } catch (e) {
+      console.error('Failed to parse API config:', e);
+    }
+  }
+  return {
+    mode: 'demo',
+    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:5001',
+    isDemo: process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false
+  };
+};
+
+const config = getApiConfig();
+const API_BASE_URL = config.apiUrl;
+const IS_DEMO_MODE = config.isDemo;
+
+// Set API base URL if not in demo mode
+if (!IS_DEMO_MODE) {
+  ApiService.setBaseUrl(API_BASE_URL);
+}
 
 // Recharts import with error handling
 let BarChart: any, Bar: any, XAxis: any, YAxis: any, CartesianGrid: any, Tooltip: any, ResponsiveContainer: any;
@@ -121,14 +144,17 @@ const Simulation: React.FC = () => {
         const mockResult = await MockApiService.simulateCircuit(circuit, simulationParams);
         setResult(mockResult);
       } else {
-        const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
-          circuit,
-          ...simulationParams
+        const result = await ApiService.simulateCircuit(circuit, {
+          shots: simulationParams.shots,
+          noise: simulationParams.noise_model,
+          mitigation: false,
+          backend: simulationParams.backend
         });
-        setResult(response.data);
+        setResult(result);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Simulation failed');
+      console.error('Simulation error:', err);
+      setError(err.message || 'Simulation failed');
     } finally {
       setLoading(false);
     }

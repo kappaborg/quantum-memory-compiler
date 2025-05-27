@@ -422,6 +422,14 @@ if HAS_FLASK and HAS_SOCKETIO:
             
             print(f"✅ Circuit created successfully, width: {circuit.width}, gates: {len(circuit.gates)}")
             
+            # Add measurement gates automatically if not present
+            has_measurements = any(gate.type == GateType.MEASURE for gate in circuit.gates)
+            if not has_measurements:
+                print("🔧 Adding automatic measurements to all qubits for compilation")
+                for i, qubit in enumerate(qubits):
+                    circuit.add_gate(GateType.MEASURE, qubit, parameters=[i])
+                print(f"🔧 Added {len(qubits)} measurement gates")
+            
             # Simulation parameters
             shots = data.get('shots', 1024)
             use_noise = data.get('noise', False)
@@ -438,13 +446,51 @@ if HAS_FLASK and HAS_SOCKETIO:
             simulator = Simulator(noise_model=noise_model, enable_error_mitigation=use_mitigation)
             
             # Run simulation
+            print(f"🔬 About to run simulation with {shots} shots")
+            sys.stdout.flush()
+            
+            # Check simulator before running
+            print(f"🔬 Simulator object: {simulator}")
+            print(f"🔬 Simulator type: {type(simulator)}")
+            sys.stdout.flush()
+            
             results = simulator.run(circuit, shots=shots)
             
+            print(f"🔬 Simulation returned: {results}")
+            print(f"🔬 Type of results: {type(results)}")
+            print(f"🔬 Results is None: {results is None}")
+            print(f"🔬 Results length: {len(results) if results else 'N/A'}")
+            sys.stdout.flush()
+            
+            # Also check simulator.results attribute
+            print(f"🔬 Simulator.results: {simulator.results}")
+            print(f"🔬 Simulator.results type: {type(simulator.results)}")
+            sys.stdout.flush()
+            
             print("✅ Simulation completed successfully")
+            print(f"🔬 Raw simulation results: {results}")
+            sys.stdout.flush()
+            
+            # Convert numpy types to Python types for JSON serialization
+            def convert_numpy_to_python(obj):
+                """Convert numpy types to Python types for JSON serialization"""
+                if hasattr(obj, 'item'):
+                    return obj.item()
+                elif isinstance(obj, dict):
+                    return {k: convert_numpy_to_python(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_numpy_to_python(item) for item in obj]
+                else:
+                    return obj
+            
+            # Convert results to JSON-serializable format
+            json_results = convert_numpy_to_python(results)
+            print(f"🔬 JSON-serializable results: {json_results}")
+            
             # Return results
             return jsonify({
                 "success": True,
-                "results": results,
+                "results": json_results,
                 "execution_time": 0.1,  # Placeholder
                 "shots": shots,
                 "backend": "qasm_simulator",
@@ -523,6 +569,14 @@ if HAS_FLASK and HAS_SOCKETIO:
                         print(f"🔧 Added gate: type={gate_type} to qubits {[q.id for q in target_qubits]}")
             
             print(f"✅ Circuit created successfully, width: {circuit.width}, gates: {len(circuit.gates)}")
+            
+            # Add measurement gates automatically if not present
+            has_measurements = any(gate.type == GateType.MEASURE for gate in circuit.gates)
+            if not has_measurements:
+                print("🔧 Adding automatic measurements to all qubits for compilation")
+                for i, qubit in enumerate(qubits):
+                    circuit.add_gate(GateType.MEASURE, qubit, parameters=[i])
+                print(f"🔧 Added {len(qubits)} measurement gates")
             
             # Compilation parameters
             strategy = data.get('strategy', 'balanced')
@@ -1863,11 +1917,11 @@ def run_api_server(host: str = "0.0.0.0", port: int = 5000, debug: bool = False)
         print("   Install with: pip install flask flask-cors flask-socketio eventlet")
         return
     
-    if app is None or socketio is None:
-        print("❌ Flask app or SocketIO could not be created.")
+    if app is None:
+        print("❌ Flask app could not be created.")
         return
     
-    print(f"🚀 Starting API server with WebSocket support: http://{host}:{port}")
+    print(f"🚀 Starting API server: http://{host}:{port}")
     print(f"📋 Available API endpoints:")
     print(f"   - GET  /api/info              : Get API information")
     print(f"   - POST /api/circuit/visualize : Visualize circuits")
@@ -1875,16 +1929,11 @@ def run_api_server(host: str = "0.0.0.0", port: int = 5000, debug: bool = False)
     print(f"   - POST /api/circuit/compile   : Compile circuits")
     print(f"   - POST /api/memory/profile    : Create memory profiles")
     print(f"   - GET  /api/examples          : List available examples")
-    print(f"🔌 WebSocket events:")
-    print(f"   - connect/disconnect          : Session management")
-    print(f"   - join_room/leave_room        : Collaboration rooms")
-    print(f"   - circuit_update              : Real-time circuit sharing")
-    print(f"   - request_system_stats        : Live system statistics")
     print(f"🔧 Developer: kappasutra")
     
     try:
-        # Use SocketIO run instead of Flask run for WebSocket support
-        socketio.run(app, host=host, port=port, debug=debug, allow_unsafe_werkzeug=True)
+        # Use Flask run instead of SocketIO run for debugging
+        app.run(host=host, port=port, debug=debug)
     except Exception as e:
         print(f"❌ Error starting API server: {e}")
         print(f"   Host: {host}, Port: {port}, Debug: {debug}")
@@ -1892,7 +1941,7 @@ def run_api_server(host: str = "0.0.0.0", port: int = 5000, debug: bool = False)
         alt_port = port + 1
         print(f"🔄 Trying alternative port: {alt_port}")
         try:
-            socketio.run(app, host=host, port=alt_port, debug=debug, allow_unsafe_werkzeug=True)
+            app.run(host=host, port=alt_port, debug=debug)
         except Exception as e2:
             print(f"❌ Could not start with alternative port either: {e2}")
 

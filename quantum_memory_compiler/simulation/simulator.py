@@ -50,13 +50,16 @@ class Simulator:
         Returns:
             dict: Ölçüm sonuçları
         """
+        print(f"🔬 Simulator.run called with {shots} shots")
+        print(f"🔬 Circuit has {len(circuit.gates)} gates and {len(circuit.qubits)} qubits")
+        
         # Hata azaltma ayarını belirle
         apply_mitigation = apply_error_mitigation if apply_error_mitigation is not None else self.enable_error_mitigation
         
         # Her shot için ayrı simülasyon çalıştır
         counts = defaultdict(int)
         
-        for _ in range(shots):
+        for shot_idx in range(shots):
             # Qubit durumlarını hazırla
             qubit_states = {}
             for qubit in circuit.qubits:
@@ -65,6 +68,11 @@ class Simulator:
             
             # Kapıları zamanlarına göre sırala ve uygula
             sorted_gates = sorted(circuit.gates, key=lambda g: g.time)
+            
+            if shot_idx == 0:  # Sadece ilk shot için debug
+                print(f"🔬 Processing {len(sorted_gates)} gates")
+                for i, gate in enumerate(sorted_gates):
+                    print(f"🔬 Gate {i}: {gate.type.name} on qubits {[q.id for q in gate.qubits]}")
             
             # Ölçüm sonuçlarını sakla
             measurements = {}
@@ -77,6 +85,8 @@ class Simulator:
                     result = qubit.state.measure()
                     classical_bit = gate.parameters[0] if gate.parameters else qubit.id
                     measurements[classical_bit] = result
+                    if shot_idx == 0:
+                        print(f"🔬 Measured qubit {qubit.id} -> {result} (classical bit {classical_bit})")
                 
                 # Reset kapısı ise, qubit'i sıfırla
                 elif gate.type == GateType.RESET:
@@ -105,14 +115,34 @@ class Simulator:
                             print(f"Uyarı: {gate.type.name} tipi kapı simülatörde tam olarak desteklenmiyor")
             
             # Bu simülasyonun sonucunu counts'a ekle
-            result_str = ''.join(str(measurements.get(i, 0)) for i in sorted(measurements.keys()))
+            if measurements:
+                # Ölçüm sonuçları varsa, bunları kullan
+                result_str = ''.join(str(measurements.get(i, 0)) for i in sorted(measurements.keys()))
+                if shot_idx == 0:
+                    print(f"🔬 Measurement results: {measurements}")
+                    print(f"🔬 Result string: '{result_str}'")
+            else:
+                # Ölçüm sonuçları yoksa, tüm qubit'lerin son durumlarını ölç
+                result_bits = []
+                for qubit in circuit.qubits:
+                    measurement_result = qubit.state.measure()
+                    result_bits.append(str(measurement_result))
+                result_str = ''.join(result_bits)
+                if shot_idx == 0:
+                    print(f"🔬 No explicit measurements, measuring final states: {result_bits}")
+                    print(f"🔬 Result string: '{result_str}'")
+            
             if result_str:
                 counts[result_str] += 1
+        
+        print(f"🔬 Final counts: {dict(counts)}")
         
         # Sonuçları normalize et
         results = {}
         for key in counts:
             results[key] = counts[key] / shots
+        
+        print(f"🔬 Normalized results: {results}")
         
         self.results = dict(results)
         
@@ -129,7 +159,10 @@ class Simulator:
             except Exception as e:
                 print(f"Hata azaltma uygulanırken hata oluştu: {e}")
         
-        return self.results
+        # Return the results directly - use local results if no mitigation applied
+        final_results = self.results if (apply_mitigation and self.error_mitigation) else results
+        print(f"🔬 Final results to return: {final_results}")
+        return final_results
     
     def run_with_error_mitigation(self, circuit, shots=1024, technique="measurement_error_mitigation"):
         """

@@ -1,10 +1,3 @@
-"""
-Qubit sınıfı
-===========
-
-Bir kuantum bitiş (qubit) temsil eden sınıftır.
-"""
-
 import numpy as np
 from enum import Enum, auto
 from functools import lru_cache
@@ -12,31 +5,20 @@ import time as time_module
 
 
 class QubitType(Enum):
-    """Qubit tiplerini tanımlayan enum sınıfı"""
-    PHYSICAL = auto()  # Fiziksel qubit
-    LOGICAL = auto()   # Mantıksal qubit
-    ANCILLA = auto()   # Yardımcı qubit
+    PHYSICAL = auto()  
+    LOGICAL = auto()   
+    ANCILLA = auto()   
 
 
 class MemoryLevel(Enum):
-    """Kuantum bellek hiyerarşisi seviyelerini tanımlayan enum sınıfı"""
-    L1 = auto()  # İşlem qubit'leri (hızlı işlem, kısa koherans)
-    L2 = auto()  # Ara bellek (orta hızlı işlem, orta koherans)
-    L3 = auto()  # Uzun süreli bellek (yavaş işlem, uzun koherans)
+    L1 = auto()  
+    L2 = auto()  
+    L3 = auto() 
 
 
-class QubitState:
-    """Qubit'in kuantum durumunu temsil eden sınıf"""
-    
+class QubitState:    
     def __init__(self, alpha=1.0, beta=0.0):
-        """
-        Qubit'in kuantum durumunu başlatır: α|0⟩ + β|1⟩
-        
-        Args:
-            alpha (complex): |0⟩ durumunun genliği
-            beta (complex): |1⟩ durumunun genliği
-        """
-        # Normalizasyon kontrolü
+       
         norm = np.abs(alpha)**2 + np.abs(beta)**2
         if not np.isclose(norm, 1.0):
             alpha = alpha / np.sqrt(norm)
@@ -45,7 +27,6 @@ class QubitState:
         self._alpha = alpha
         self._beta = beta
         
-        # Caching for performance
         self._cache = {'vector': None, 'density_matrix': None, 'probabilities': None}
         self._cache_valid = False
     
@@ -61,7 +42,6 @@ class QubitState:
     
     @property
     def beta(self):
-        """Beta coefficient of the qubit state"""
         return self._beta
     
     @beta.setter
@@ -70,46 +50,33 @@ class QubitState:
         self._invalidate_cache()
     
     def _invalidate_cache(self):
-        """Invalidates the cache when state changes"""
         self._cache_valid = False
     
     def _update_cache(self):
-        """Updates all cached values"""
         if not self._cache_valid:
-            # Calculate vector
             self._cache['vector'] = np.array([self._alpha, self._beta], dtype=complex)
             
-            # Calculate density matrix
             psi = self._cache['vector']
             self._cache['density_matrix'] = np.outer(psi, psi.conj())
             
-            # Calculate probabilities
             self._cache['probabilities'] = (np.abs(self._alpha)**2, np.abs(self._beta)**2)
             
             self._cache_valid = True
     
     def to_vector(self):
-        """Qubit durumunu vektör olarak döndürür"""
         self._update_cache()
         return self._cache['vector'].copy()
     
     def to_density_matrix(self):
-        """Qubit durumunu yoğunluk matrisi olarak döndürür"""
         self._update_cache()
         return self._cache['density_matrix'].copy()
     
     def probabilities(self):
-        """Qubit'in |0⟩ ve |1⟩ durumlarında ölçülme olasılıklarını döndürür"""
         self._update_cache()
         return self._cache['probabilities']
     
     def measure(self):
-        """
-        Qubit'i ölçer ve ölçüm sonucunu döndürür
         
-        Returns:
-            int: Ölçüm sonucu (0 veya 1)
-        """
         prob_0, prob_1 = self.probabilities()
         result = np.random.choice([0, 1], p=[prob_0, prob_1])
         
@@ -125,21 +92,12 @@ class QubitState:
         return result
     
     def reset(self):
-        """Qubit'i |0⟩ durumuna sıfırlar"""
         self._alpha = 1.0
         self._beta = 0.0
         self._invalidate_cache()
     
     def fidelity(self, target_state):
-        """
-        Calculates the fidelity between this state and a target state
         
-        Args:
-            target_state: Target QubitState
-            
-        Returns:
-            float: Fidelity between states (0 to 1)
-        """
         this_dm = self.to_density_matrix()
         target_dm = target_state.to_density_matrix()
         
@@ -150,20 +108,17 @@ class QubitState:
 
 
 class Qubit:
-    """Bir qubit'i temsil eden sınıf"""
     
-    # Default coherence time constants for each memory level (in arbitrary time units)
     DEFAULT_COHERENCE_TIMES = {
-        MemoryLevel.L1: 50,      # Fast operation, short coherence
-        MemoryLevel.L2: 200,     # Medium operation speed, medium coherence
-        MemoryLevel.L3: 1000     # Slow operation, long coherence
+        MemoryLevel.L1: 50,      
+        MemoryLevel.L2: 200,     
+        MemoryLevel.L3: 1000     
     }
     
-    # Default error rates for each memory level
     DEFAULT_ERROR_RATES = {
-        MemoryLevel.L1: 0.01,    # 1% error for L1
-        MemoryLevel.L2: 0.005,   # 0.5% error for L2
-        MemoryLevel.L3: 0.001    # 0.1% error for L3
+        MemoryLevel.L1: 0.01,    
+        MemoryLevel.L2: 0.005,   
+        MemoryLevel.L3: 0.001    
     }
     
     def __init__(self, qubit_id, qubit_type=QubitType.LOGICAL, memory_level=MemoryLevel.L1):
@@ -178,9 +133,8 @@ class Qubit:
         self.id = qubit_id
         self.type = qubit_type
         self._memory_level = memory_level
-        self.state = QubitState()  # |0⟩ durumunda başlat
+        self.state = QubitState()  
         
-        # Yaşam döngüsü ve kullanım bilgileri
         self.creation_time = 0
         self.last_usage_time = 0
         self.is_allocated = False

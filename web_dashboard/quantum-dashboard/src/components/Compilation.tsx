@@ -1,44 +1,67 @@
 import {
-    Build as CompileIcon,
-    ExpandMore as ExpandMoreIcon,
-    Timeline as MetricsIcon,
-    Speed as OptimizeIcon,
-    Upload as UploadIcon
+  Build as CompileIcon,
+  ExpandMore as ExpandMoreIcon,
+  Timeline as MetricsIcon,
+  Speed as OptimizeIcon,
+  Upload as UploadIcon
 } from '@mui/icons-material';
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Alert,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Chip,
-    Divider,
-    FormControl,
-    FormControlLabel,
-    Grid,
-    InputLabel,
-    LinearProgress,
-    MenuItem,
-    Paper,
-    Select,
-    Switch,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  InputLabel,
+  LinearProgress,
+  MenuItem,
+  Paper,
+  Select,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
 } from '@mui/material';
-import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { ApiService } from '../services/apiService';
 import { MockApiService } from '../services/mockApiService';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
+// Function to get API configuration from localStorage
+const getApiConfig = () => {
+  const savedConfig = localStorage.getItem('quantum_api_config');
+  if (savedConfig) {
+    try {
+      return JSON.parse(savedConfig);
+    } catch (e) {
+      console.error('Failed to parse API config:', e);
+    }
+  }
+  return {
+    mode: 'demo',
+    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:5001',
+    isDemo: process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false
+  };
+};
+
+const config = getApiConfig();
+const API_BASE_URL = config.apiUrl;
+const IS_DEMO_MODE = config.isDemo;
+
+// Set API base URL if not in demo mode
+if (!IS_DEMO_MODE) {
+  ApiService.setBaseUrl(API_BASE_URL);
+}
 
 interface CompilationResult {
   success: boolean;
@@ -107,14 +130,15 @@ const Compilation: React.FC = () => {
         const mockResult = await MockApiService.compileCircuit(circuit, compilationParams);
         setResult(mockResult);
       } else {
-        const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
-          circuit,
-          ...compilationParams
+        const result = await ApiService.compileCircuit(circuit, {
+          strategy: compilationParams.strategy,
+          use_meta_compiler: compilationParams.use_meta_compiler
         });
-        setResult(response.data);
+        setResult(result);
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Compilation failed');
+      console.error('Compilation error:', err);
+      setError(err.message || 'Compilation failed');
     } finally {
       setLoading(false);
     }

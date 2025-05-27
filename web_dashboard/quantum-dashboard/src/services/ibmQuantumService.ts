@@ -1,8 +1,35 @@
 import axios from 'axios';
 import { MockApiService } from './mockApiService';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
+// Function to get API configuration from localStorage
+const getApiConfig = () => {
+  const savedConfig = localStorage.getItem('quantum_api_config');
+  if (savedConfig) {
+    try {
+      return JSON.parse(savedConfig);
+    } catch (e) {
+      console.error('Failed to parse API config:', e);
+    }
+  }
+  return {
+    mode: 'demo',
+    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:5001',
+    isDemo: process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false
+  };
+};
+
+const config = getApiConfig();
+const API_BASE_URL = config.apiUrl;
+const IS_DEMO_MODE = config.isDemo;
+
+// Debug logging
+console.log('🔧 IBMQuantumService Config:', {
+  mode: config.mode,
+  API_BASE_URL,
+  IS_DEMO_MODE,
+  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE
+});
 
 export interface IBMBackend {
   name: string;

@@ -1,0 +1,19 @@
+{
+  "export_timestamp": "2025-05-27T03:53:47.291428",
+  "session_info": {
+    "session_id": "20250527_035347",
+    "session_start": "2025-05-27T03:53:47.290759",
+    "session_duration_seconds": 0.000671,
+    "statistics": {
+      "total_logs": 13,
+      "errors": 1,
+      "warnings": 1,
+      "simulations": 4,
+      "compilations": 2
+    }
+  },
+  "log_files": [
+    "test_logs/errors_20250527.log",
+    "test_logs/quantum_compiler_20250527.log"
+  ]
+}

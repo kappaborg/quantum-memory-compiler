@@ -28,17 +28,42 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
+import { ApiService } from '../services/apiService';
 import { MockApiService } from '../services/mockApiService';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
-const IS_DEMO_MODE = process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false;
+// Function to get API configuration from localStorage
+const getApiConfig = () => {
+  const savedConfig = localStorage.getItem('quantum_api_config');
+  if (savedConfig) {
+    try {
+      return JSON.parse(savedConfig);
+    } catch (e) {
+      console.error('Failed to parse API config:', e);
+    }
+  }
+  return {
+    mode: 'demo',
+    apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:5001',
+    isDemo: process.env.REACT_APP_DEMO_MODE === 'true' || process.env.REACT_APP_API_URL?.includes('demo') || false
+  };
+};
+
+const config = getApiConfig();
+const API_BASE_URL = config.apiUrl;
+const IS_DEMO_MODE = config.isDemo;
+
+// Set API base URL if not in demo mode
+if (!IS_DEMO_MODE) {
+  ApiService.setBaseUrl(API_BASE_URL);
+}
 
 // Debug logging
-console.log('🔧 CircuitEditor Debug:', {
-  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
-  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE,
+console.log('🔧 CircuitEditor Config:', {
+  mode: config.mode,
+  API_BASE_URL,
   IS_DEMO_MODE,
-  API_BASE_URL
+  REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+  REACT_APP_DEMO_MODE: process.env.REACT_APP_DEMO_MODE
 });
 
 interface Gate {
@@ -183,43 +208,34 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      const circuitData = {
+        name: circuit.name,
+        qubits: circuit.qubits,
+        gates: circuit.gates.map(g => ({
+          type: g.type,
+          qubits: g.qubits,
+          parameters: g.parameters
+        })),
+        measurements: circuit.measurements
+      };
+
       if (IS_DEMO_MODE) {
-        const mockResult = await MockApiService.visualizeCircuit({
-          name: circuit.name,
-          qubits: circuit.qubits,
-          gates: circuit.gates.map(g => ({
-            type: g.type,
-            qubits: g.qubits,
-            parameters: g.parameters
-          })),
-          measurements: circuit.measurements
-        });
+        const mockResult = await MockApiService.visualizeCircuit(circuitData);
         setResult({ type: 'demo', message: mockResult.message });
       } else {
-        const response = await axios.post(`${API_BASE_URL}/api/circuit/visualize`, {
-          circuit: {
-            name: circuit.name,
-            qubits: circuit.qubits,
-            gates: circuit.gates.map(g => ({
-              type: g.type,
-              qubits: g.qubits,
-              parameters: g.parameters
-            })),
-            measurements: circuit.measurements
-          }
-        }, {
-          responseType: 'blob'
-        });
-        
-        // Create image URL from blob
-        const imageUrl = URL.createObjectURL(response.data);
-        setResult({ type: 'image', url: imageUrl });
+        const result = await ApiService.visualizeCircuit(circuitData, 'base64');
+        if (result.image) {
+          setResult({ type: 'image', url: `data:image/png;base64,${result.image}` });
+        } else {
+          setError('No image data received from API');
+        }
       }
     } catch (err: any) {
+      console.error('Visualization error:', err);
       if (IS_DEMO_MODE) {
         setError('Demo mode: This feature requires a real API server connection.');
       } else {
-        setError(err.response?.data?.error || 'Visualization failed');
+        setError(err.message || 'Visualization failed');
       }
     } finally {
       setLoading(false);
@@ -230,39 +246,30 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      const circuitData = {
+        name: circuit.name,
+        qubits: circuit.qubits,
+        gates: circuit.gates.map(g => ({
+          type: g.type,
+          qubits: g.qubits,
+          parameters: g.parameters
+        })),
+        measurements: circuit.measurements
+      };
+
       if (IS_DEMO_MODE) {
-        const mockResult = await MockApiService.simulateCircuit({
-          name: circuit.name,
-          qubits: circuit.qubits,
-          gates: circuit.gates.map(g => ({
-            type: g.type,
-            qubits: g.qubits,
-            parameters: g.parameters
-          })),
-          measurements: circuit.measurements
-        }, { shots: 1024 });
+        const mockResult = await MockApiService.simulateCircuit(circuitData, { shots: 1024 });
         setResult({ type: 'simulation', data: mockResult });
       } else {
-        const response = await axios.post(`${API_BASE_URL}/api/circuit/simulate`, {
-          circuit: {
-            name: circuit.name,
-            qubits: circuit.qubits,
-            gates: circuit.gates.map(g => ({
-              type: g.type,
-              qubits: g.qubits,
-              parameters: g.parameters
-            })),
-            measurements: circuit.measurements
-          },
-          shots: 1024
-        });
-        setResult({ type: 'simulation', data: response.data });
+        const result = await ApiService.simulateCircuit(circuitData, { shots: 1024 });
+        setResult({ type: 'simulation', data: result });
       }
     } catch (err: any) {
+      console.error('Simulation error:', err);
       if (IS_DEMO_MODE) {
         setError('Demo mode: This feature requires a real API server connection.');
       } else {
-        setError(err.response?.data?.error || 'Simulation failed');
+        setError(err.message || 'Simulation failed');
       }
     } finally {
       setLoading(false);
@@ -273,38 +280,30 @@ const CircuitEditor: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      const circuitData = {
+        name: circuit.name,
+        qubits: circuit.qubits,
+        gates: circuit.gates.map(g => ({
+          type: g.type,
+          qubits: g.qubits,
+          parameters: g.parameters
+        })),
+        measurements: circuit.measurements
+      };
+
       if (IS_DEMO_MODE) {
-        const mockResult = await MockApiService.compileCircuit({
-          name: circuit.name,
-          qubits: circuit.qubits,
-          gates: circuit.gates.map(g => ({
-            type: g.type,
-            qubits: g.qubits,
-            parameters: g.parameters
-          })),
-          measurements: circuit.measurements
-        }, { strategy: 'demo' });
+        const mockResult = await MockApiService.compileCircuit(circuitData, { strategy: 'demo' });
         setResult({ type: 'compilation', data: mockResult });
       } else {
-        const response = await axios.post(`${API_BASE_URL}/api/circuit/compile`, {
-          circuit: {
-            name: circuit.name,
-            qubits: circuit.qubits,
-            gates: circuit.gates.map(g => ({
-              type: g.type,
-              qubits: g.qubits,
-              parameters: g.parameters
-            })),
-            measurements: circuit.measurements
-          }
-        });
-        setResult({ type: 'compilation', data: response.data });
+        const result = await ApiService.compileCircuit(circuitData, { strategy: 'balanced' });
+        setResult({ type: 'compilation', data: result });
       }
     } catch (err: any) {
+      console.error('Compilation error:', err);
       if (IS_DEMO_MODE) {
         setError('Demo mode: This feature requires a real API server connection.');
       } else {
-        setError(err.response?.data?.error || 'Compilation failed');
+        setError(err.message || 'Compilation failed');
       }
     } finally {
       setLoading(false);
