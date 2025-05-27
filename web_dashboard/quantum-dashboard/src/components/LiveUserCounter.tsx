@@ -140,18 +140,6 @@ const LiveUserCounter: React.FC = () => {
     return pageNames[page] || page;
   };
 
-  const formatLastActivity = (lastActivity: Date): string => {
-    const now = new Date();
-    const diff = now.getTime() - lastActivity.getTime();
-    const seconds = Math.floor(diff / 1000);
-    
-    if (seconds < 60) return 'Just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    return `${hours}h ago`;
-  };
-
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flexGrow: 1 }}>
