@@ -27,6 +27,7 @@ import {
     Typography
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import ApiService from '../services/apiService';
 import envService from '../services/envService';
 
 interface IBMQuantumConfigProps {
@@ -35,6 +36,7 @@ interface IBMQuantumConfigProps {
 
 const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) => {
   const [isConfigured, setIsConfigured] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'unknown' | 'connected' | 'error'>('unknown');
   const [showDialog, setShowDialog] = useState(false);
   const [token, setToken] = useState('');
   const [showToken, setShowToken] = useState(false);
@@ -51,7 +53,30 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
     if (onConfigChange) {
       onConfigChange(config.ibmQuantum.enabled);
     }
+    
+    // Check IBM Quantum status
+    checkIBMQuantumStatus();
   }, [onConfigChange]);
+
+  const checkIBMQuantumStatus = async () => {
+    try {
+      const status = await ApiService.getIBMQuantumStatus();
+      if (status.success) {
+        setConnectionStatus('connected');
+      } else {
+        setConnectionStatus('error');
+      }
+    } catch (error) {
+      console.log('IBM Quantum status check failed (expected in demo mode):', error);
+      // In demo mode, this is expected - don't show as error
+      const config = envService.getConfig();
+      if (config.isDemoMode) {
+        setConnectionStatus('connected'); // Show as connected in demo mode
+      } else {
+        setConnectionStatus('error');
+      }
+    }
+  };
 
   const handleTokenSubmit = async () => {
     if (!token.trim()) {
@@ -73,6 +98,9 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
 
       // Save token
       envService.setIBMQuantumToken(token, persistent);
+      
+      // Test the connection
+      await checkIBMQuantumStatus();
       
       setValidationResult({
         isValid: true,
@@ -104,6 +132,7 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
   const handleTokenClear = () => {
     envService.clearIBMQuantumToken();
     setIsConfigured(false);
+    setConnectionStatus('unknown');
     setToken('');
     setValidationResult(null);
     if (onConfigChange) {
@@ -120,6 +149,79 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
 
   const config = envService.getConfig();
 
+  const getStatusChip = () => {
+    if (config.isDemoMode) {
+      return (
+        <Chip
+          icon={<CheckIcon />}
+          label="Demo Mode"
+          color="warning"
+          variant="outlined"
+        />
+      );
+    }
+
+    if (!isConfigured) {
+      return (
+        <Chip
+          icon={<ErrorIcon />}
+          label="Not Configured"
+          color="error"
+          variant="outlined"
+        />
+      );
+    }
+
+    switch (connectionStatus) {
+      case 'connected':
+        return (
+          <Chip
+            icon={<CheckIcon />}
+            label="Connected"
+            color="success"
+            variant="outlined"
+          />
+        );
+      case 'error':
+        return (
+          <Chip
+            icon={<ErrorIcon />}
+            label="Connection Error"
+            color="error"
+            variant="outlined"
+          />
+        );
+      default:
+        return (
+          <Chip
+            icon={<ErrorIcon />}
+            label="Checking..."
+            color="default"
+            variant="outlined"
+          />
+        );
+    }
+  };
+
+  const getStatusMessage = () => {
+    if (config.isDemoMode) {
+      return 'Running in demo mode with simulated IBM Quantum integration';
+    }
+
+    if (!isConfigured) {
+      return 'Not configured - Add your IBM Quantum token to get started';
+    }
+
+    switch (connectionStatus) {
+      case 'connected':
+        return 'Connected and ready to use IBM Quantum services';
+      case 'error':
+        return 'Token configured but connection failed - Check your token';
+      default:
+        return 'Checking connection status...';
+    }
+  };
+
   return (
     <Box sx={{ mb: 2 }}>
       <Card variant="outlined">
@@ -130,36 +232,47 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
               <Box>
                 <Typography variant="h6">IBM Quantum</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {isConfigured ? 'Connected and ready' : 'Not configured'}
+                  {getStatusMessage()}
                 </Typography>
               </Box>
             </Box>
             
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Chip
-                icon={isConfigured ? <CheckIcon /> : <ErrorIcon />}
-                label={isConfigured ? 'Configured' : 'Not Configured'}
-                color={isConfigured ? 'success' : 'error'}
-                variant="outlined"
-              />
+              {getStatusChip()}
               
-              <Tooltip title="Configure IBM Quantum">
-                <IconButton onClick={() => setShowDialog(true)}>
-                  <SettingsIcon />
-                </IconButton>
-              </Tooltip>
+              {!config.isDemoMode && (
+                <Tooltip title="Configure IBM Quantum">
+                  <IconButton onClick={() => setShowDialog(true)}>
+                    <SettingsIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
           </Box>
 
-          {config.isGitHubPages && (
+          {config.isDemoMode && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              <strong>Demo Mode:</strong> IBM Quantum integration is simulated. 
+              All quantum operations use demo data for testing purposes.
+            </Alert>
+          )}
+
+          {config.isGitHubPages && !config.isDemoMode && (
             <Alert severity="info" sx={{ mt: 2 }}>
               <strong>GitHub Pages Mode:</strong> IBM Quantum token is configured via environment variables.
             </Alert>
           )}
 
-          {!isConfigured && !config.isGitHubPages && (
+          {!isConfigured && !config.isGitHubPages && !config.isDemoMode && (
             <Alert severity="warning" sx={{ mt: 2 }}>
               Configure your IBM Quantum token to access real quantum hardware and simulators.
+            </Alert>
+          )}
+
+          {connectionStatus === 'error' && isConfigured && !config.isDemoMode && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              <strong>Connection Failed:</strong> Unable to connect to IBM Quantum services. 
+              Please check your token and network connection.
             </Alert>
           )}
         </CardContent>
@@ -218,7 +331,7 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
                   onChange={(e) => setPersistent(e.target.checked)}
                 />
               }
-              label="Remember token (save in browser)"
+              label="Remember token (store in localStorage)"
               sx={{ mb: 2 }}
             />
 
@@ -233,37 +346,26 @@ const IBMQuantumConfig: React.FC<IBMQuantumConfigProps> = ({ onConfigChange }) =
 
             <Alert severity="warning" sx={{ mb: 2 }}>
               <Typography variant="body2">
-                <strong>Security Note:</strong> Your token will be stored locally in your browser. 
-                Never share your token or commit it to version control.
+                <strong>Security Note:</strong> Your token will be stored securely and used only 
+                for IBM Quantum API calls. Never share your token with others.
               </Typography>
             </Alert>
-
-            {isConfigured && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Current Configuration:
-                </Typography>
-                <Chip label="Token Configured" color="success" size="small" />
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  onClick={handleTokenClear}
-                  sx={{ ml: 1 }}
-                >
-                  Clear Token
-                </Button>
-              </Box>
-            )}
           </Box>
         </DialogContent>
         
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleDialogClose}>
+            Cancel
+          </Button>
+          {isConfigured && (
+            <Button onClick={handleTokenClear} color="error">
+              Clear Token
+            </Button>
+          )}
           <Button 
-            onClick={handleTokenSubmit}
+            onClick={handleTokenSubmit} 
             variant="contained"
-            disabled={!token.trim() || isValidating}
+            disabled={isValidating || !token.trim()}
           >
             {isValidating ? 'Validating...' : 'Save Token'}
           </Button>

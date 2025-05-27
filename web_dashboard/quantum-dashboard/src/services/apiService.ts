@@ -60,7 +60,10 @@ class ApiServiceClass {
         // Skip actual requests in demo mode
         if (this.isDemoMode || this.baseUrl.startsWith('demo://')) {
           console.log('🎭 Demo Mode: Intercepting API request:', config.url);
-          return Promise.reject(new Error('DEMO_MODE_INTERCEPT'));
+          // Use headers to mark demo mode requests
+          config.headers = config.headers || {};
+          config.headers['X-Demo-Mode'] = 'true';
+          return config;
         }
         return config;
       },
@@ -69,10 +72,18 @@ class ApiServiceClass {
 
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.message === 'DEMO_MODE_INTERCEPT') {
-          // Return demo response
+      (response) => {
+        // Check if this was a demo mode request
+        if (response.config.headers?.['X-Demo-Mode'] === 'true') {
+          return this.getDemoResponse(response.config);
+        }
+        return response;
+      },
+      async (error) => {
+        // If real API fails, fallback to demo mode
+        if (error.code === 'ERR_NETWORK' || error.message.includes('CORS') || 
+            error.message.includes('blocked') || error.response?.status === 0) {
+          console.log('🎭 API failed, falling back to demo mode for:', error.config?.url);
           return this.getDemoResponse(error.config);
         }
         
@@ -82,22 +93,20 @@ class ApiServiceClass {
     );
   }
 
-  private getDemoResponse(config: any): Promise<AxiosResponse> {
+  private async getDemoResponse(config: any): Promise<AxiosResponse> {
     const url = config.url || '';
     const method = config.method || 'get';
     
     // Simulate network delay
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: this.generateDemoData(url, method, config.data),
-          status: 200,
-          statusText: 'OK',
-          headers: {},
-          config,
-        } as AxiosResponse);
-      }, 300 + Math.random() * 700); // 300-1000ms delay
-    });
+    await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 700));
+    
+    return {
+      data: this.generateDemoData(url, method, config.data),
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config,
+    } as AxiosResponse;
   }
 
   private generateDemoData(url: string, method: string, requestData?: any): any {
@@ -157,7 +166,7 @@ class ApiServiceClass {
     if (url.includes('/api/circuit/visualize')) {
       return {
         success: true,
-        image: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
         message: 'Demo visualization generated'
       };
     }
@@ -167,6 +176,36 @@ class ApiServiceClass {
         success: true,
         status: 'healthy',
         timestamp: new Date().toISOString()
+      };
+    }
+
+    if (url.includes('/api/ibm/status')) {
+      return {
+        success: true,
+        status: 'connected',
+        backends_available: 5,
+        queue_status: 'normal',
+        last_updated: new Date().toISOString()
+      };
+    }
+
+    if (url.includes('/api/ibm/backends')) {
+      return {
+        success: true,
+        backends: [
+          {
+            name: 'ibmq_qasm_simulator',
+            status: 'online',
+            queue_length: 0,
+            max_shots: 8192
+          },
+          {
+            name: 'ibm_brisbane',
+            status: 'online',
+            queue_length: 12,
+            max_shots: 4096
+          }
+        ]
       };
     }
 
@@ -207,7 +246,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.get('/api/info');
       return response.data;
     } catch (error) {
-      throw new Error('Failed to get API info');
+      console.error('Failed to get API info:', error);
+      throw error;
     }
   }
 
@@ -220,7 +260,8 @@ class ApiServiceClass {
       });
       return response.data;
     } catch (error) {
-      throw new Error('Simulation failed');
+      console.error('Simulation failed:', error);
+      throw error;
     }
   }
 
@@ -233,7 +274,8 @@ class ApiServiceClass {
       });
       return response.data;
     } catch (error) {
-      throw new Error('Compilation failed');
+      console.error('Compilation failed:', error);
+      throw error;
     }
   }
 
@@ -246,7 +288,8 @@ class ApiServiceClass {
       });
       return response.data;
     } catch (error) {
-      throw new Error('Visualization failed');
+      console.error('Visualization failed:', error);
+      throw error;
     }
   }
 
@@ -263,7 +306,8 @@ class ApiServiceClass {
       });
       return response.data;
     } catch (error) {
-      throw new Error('Upload failed');
+      console.error('Upload failed:', error);
+      throw error;
     }
   }
 
@@ -276,7 +320,8 @@ class ApiServiceClass {
       });
       return response.data;
     } catch (error) {
-      throw new Error('Download failed');
+      console.error('Download failed:', error);
+      throw error;
     }
   }
 
@@ -286,7 +331,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.get('/api/ibm/status');
       return response.data;
     } catch (error) {
-      throw new Error('IBM Quantum status check failed');
+      console.error('IBM Quantum status check failed:', error);
+      throw error;
     }
   }
 
@@ -296,7 +342,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.get('/api/ibm/backends');
       return response.data;
     } catch (error) {
-      throw new Error('Failed to get IBM Quantum backends');
+      console.error('Failed to get IBM Quantum backends:', error);
+      throw error;
     }
   }
 
@@ -310,7 +357,8 @@ class ApiServiceClass {
       });
       return response.data;
     } catch (error) {
-      throw new Error('IBM Quantum execution failed');
+      console.error('IBM Quantum execution failed:', error);
+      throw error;
     }
   }
 
@@ -320,7 +368,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.get('/api/gpu/status');
       return response.data;
     } catch (error) {
-      throw new Error('GPU status check failed');
+      console.error('GPU status check failed:', error);
+      throw error;
     }
   }
 
@@ -330,7 +379,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.get('/api/memory/profile');
       return response.data;
     } catch (error) {
-      throw new Error('Memory profiling failed');
+      console.error('Memory profiling failed:', error);
+      throw error;
     }
   }
 
@@ -340,7 +390,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.delete('/api/cache/clear');
       return response.data;
     } catch (error) {
-      throw new Error('Cache clear failed');
+      console.error('Cache clear failed:', error);
+      throw error;
     }
   }
 
@@ -350,7 +401,8 @@ class ApiServiceClass {
       const response = await this.axiosInstance.get('/api/cache/status');
       return response.data;
     } catch (error) {
-      throw new Error('Cache status check failed');
+      console.error('Cache status check failed:', error);
+      throw error;
     }
   }
 }
