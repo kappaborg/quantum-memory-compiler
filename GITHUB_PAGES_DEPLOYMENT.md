@@ -1,204 +1,197 @@
-# GitHub Pages Deployment Guide 🚀
+# GitHub Pages Deployment Guide
 
-Bu guide, Quantum Memory Compiler web dashboard'ını GitHub Pages'e deploy etmek için gerekli adımları açıklar.
+## 🚀 **Automated Deployment Setup**
 
-## 🔐 **Güvenli Token Yönetimi**
+This guide explains how to deploy the Quantum Memory Compiler dashboard to GitHub Pages with automated CI/CD.
 
-### 1. **Local Development**
+## 📋 **Prerequisites**
 
-Local development için `.env` dosyası oluşturun:
+1. GitHub repository with the quantum memory compiler code
+2. GitHub Pages enabled for the repository
+3. Proper repository permissions configured
 
-```bash
-# .env dosyası oluşturun (web_dashboard/quantum-dashboard/.env)
-cp web_dashboard/quantum-dashboard/env.example web_dashboard/quantum-dashboard/.env
-```
+## ⚙️ **Repository Settings Configuration**
 
-`.env` dosyasını düzenleyin:
-```env
+### 1. **Enable GitHub Pages**
+
+1. Go to your repository on GitHub
+2. Navigate to **Settings** → **Pages**
+3. Under **Source**, select **GitHub Actions**
+4. Save the settings
+
+### 2. **Configure Repository Permissions**
+
+1. Go to **Settings** → **Actions** → **General**
+2. Under **Workflow permissions**, select:
+   - ✅ **Read and write permissions**
+   - ✅ **Allow GitHub Actions to create and approve pull requests**
+3. Click **Save**
+
+### 3. **Set Environment Secrets (Optional)**
+
+If you want to use real IBM Quantum integration:
+
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Add the following repository secrets:
+   - `IBM_QUANTUM_TOKEN`: Your IBM Quantum token
+3. Click **Add secret**
+
+## 🔧 **Workflow Configuration**
+
+The deployment workflow (`.github/workflows/deploy-github-pages.yml`) is configured to:
+
+- ✅ Build the React application with production optimizations
+- ✅ Automatically enable demo mode for GitHub Pages
+- ✅ Handle CORS and HTTPS issues
+- ✅ Deploy to GitHub Pages using official GitHub Actions
+
+### **Environment Variables**
+
+The workflow automatically sets:
+
+```yaml
+# GitHub Pages Configuration
+REACT_APP_GITHUB_PAGES: true
+PUBLIC_URL: /quantum-memory-compiler
+
+# API Configuration (Demo Mode)
+REACT_APP_API_URL: demo://api.quantum-memory-compiler.local
+REACT_APP_DEMO_MODE: true
+REACT_APP_ENV: production
+
 # IBM Quantum Configuration
-REACT_APP_IBM_QUANTUM_TOKEN=your_actual_token_here
-REACT_APP_IBM_QUANTUM_INSTANCE=ibm_quantum
-REACT_APP_IBM_QUANTUM_CHANNEL=ibm_quantum
-
-# API Configuration
-REACT_APP_API_URL=http://localhost:5001
-REACT_APP_DEMO_MODE=false
+REACT_APP_IBM_QUANTUM_TOKEN: ${{ secrets.IBM_QUANTUM_TOKEN }}
+REACT_APP_IBM_QUANTUM_INSTANCE: ibm_quantum
+REACT_APP_IBM_QUANTUM_CHANNEL: ibm_quantum
 ```
 
-### 2. **GitHub Repository Secrets**
+## 🚀 **Deployment Process**
 
-GitHub repository'nizde şu secrets'ları ekleyin:
+### **Automatic Deployment**
 
-1. **Repository Settings** → **Secrets and variables** → **Actions**
-2. **New repository secret** butonuna tıklayın
-3. Şu secrets'ları ekleyin:
+1. Push changes to the `main` branch
+2. GitHub Actions automatically triggers the workflow
+3. The application is built with production settings
+4. Artifacts are uploaded to GitHub Pages
+5. The site is deployed and accessible
 
-| Secret Name | Value | Description |
-|-------------|-------|-------------|
-| `IBM_QUANTUM_TOKEN` | `your_ibm_quantum_token` | IBM Quantum API token |
-| `IBM_QUANTUM_INSTANCE` | `ibm_quantum` | IBM Quantum instance |
-| `IBM_QUANTUM_CHANNEL` | `ibm_quantum` | IBM Quantum channel |
-| `REACT_APP_API_URL` | `https://your-api-server.com` | API server URL (opsiyonel) |
-| `REACT_APP_DEMO_MODE` | `false` | Demo mode (opsiyonel) |
+### **Manual Deployment**
 
-## 🚀 **GitHub Pages Setup**
+If you need to manually trigger deployment:
 
-### 1. **Repository Settings**
+1. Go to **Actions** tab in your repository
+2. Select **Deploy to GitHub Pages** workflow
+3. Click **Run workflow**
+4. Select the `main` branch
+5. Click **Run workflow**
 
-1. **Repository Settings** → **Pages**
-2. **Source**: GitHub Actions
-3. **Custom domain** (opsiyonel): `your-domain.com`
+## 🌐 **Accessing Your Deployed Site**
 
-### 2. **Automatic Deployment**
+After successful deployment, your site will be available at:
+- `https://[username].github.io/quantum-memory-compiler/`
 
-GitHub Actions workflow otomatik olarak:
-- `main` veya `master` branch'e push edildiğinde
-- Pull request oluşturulduğunda (build only)
-- Web dashboard'ı build eder ve deploy eder
+Replace `[username]` with your GitHub username.
 
-### 3. **Manual Deployment**
+## 🔍 **Troubleshooting**
 
-Manuel deployment için:
+### **Common Issues and Solutions**
 
-```bash
-# Repository'yi clone edin
-git clone https://github.com/your-username/quantum-memory-compiler.git
-cd quantum-memory-compiler
+#### **1. Permission Denied Error (403)**
 
-# Dependencies'leri yükleyin
-cd web_dashboard/quantum-dashboard
-npm install
+**Error:** `Permission to [username]/quantum-memory-compiler.git denied to github-actions[bot]`
 
-# Build edin
-npm run build
+**Solution:**
+1. Go to **Settings** → **Actions** → **General**
+2. Under **Workflow permissions**, select **Read and write permissions**
+3. Enable **Allow GitHub Actions to create and approve pull requests**
+4. Save and re-run the workflow
 
-# GitHub Pages'e deploy edin (gh-pages package gerekli)
-npm install -g gh-pages
-gh-pages -d build
-```
+#### **2. Pages Build Failed**
 
-## 🔧 **Configuration Options**
+**Error:** Build or deployment fails
 
-### Environment Variables
+**Solution:**
+1. Check the **Actions** tab for detailed error logs
+2. Ensure all dependencies are properly listed in `package.json`
+3. Verify the build completes locally with `npm run build`
+4. Check that the `PUBLIC_URL` matches your repository name
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `REACT_APP_GITHUB_PAGES` | `false` | GitHub Pages mode |
-| `REACT_APP_API_URL` | `http://localhost:5001` | API server URL |
-| `REACT_APP_DEMO_MODE` | `false` | Demo mode |
-| `REACT_APP_IBM_QUANTUM_TOKEN` | - | IBM Quantum token |
-| `PUBLIC_URL` | `/` | Public URL path |
+#### **3. Site Not Loading Properly**
 
-### Build Configuration
+**Error:** Site loads but features don't work
 
-```json
-{
-  "homepage": "https://your-username.github.io/quantum-memory-compiler",
-  "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
-  }
-}
-```
+**Solution:**
+1. Check browser console for errors
+2. Verify that demo mode is enabled (should show "Demo Mode" in API status)
+3. Ensure the `PUBLIC_URL` is correctly set in the workflow
 
-## 🔒 **Security Best Practices**
+#### **4. IBM Quantum Token Issues**
 
-### 1. **Token Security**
+**Error:** IBM Quantum features not working
 
-- ✅ **DO**: Store tokens in GitHub Secrets
-- ✅ **DO**: Use environment variables
-- ✅ **DO**: Validate token format
-- ❌ **DON'T**: Commit tokens to git
-- ❌ **DON'T**: Share tokens publicly
-- ❌ **DON'T**: Use production tokens in development
+**Solution:**
+1. Verify the token is correctly set in repository secrets
+2. Check that the token has proper permissions
+3. The token should be set as `IBM_QUANTUM_TOKEN` in repository secrets
 
-### 2. **Access Control**
+### **Workflow Status Checks**
 
-- IBM Quantum token'ınızı minimal permissions ile oluşturun
-- Sadece gerekli backend'lere erişim verin
-- Token'ı düzenli olarak rotate edin
+Monitor deployment status:
 
-### 3. **Environment Separation**
+1. **Actions Tab**: Shows workflow execution status
+2. **Environments**: Shows deployment history and status
+3. **Pages Settings**: Shows current deployment source and status
 
-```
-Development → Local .env file
-Staging     → GitHub Secrets (staging)
-Production  → GitHub Secrets (production)
-```
+## 📊 **Features Available in Demo Mode**
 
-## 🌐 **Deployment URLs**
+When deployed to GitHub Pages, the following features are available:
 
-### GitHub Pages URL Format
+- ✅ **Circuit Editor**: Full circuit design capabilities
+- ✅ **Simulation**: Simulated quantum circuit execution
+- ✅ **Compilation**: Circuit optimization and compilation
+- ✅ **Visualization**: Circuit diagram generation
+- ✅ **Live User Counter**: Real-time user activity simulation
+- ✅ **IBM Quantum Integration**: Token management (with real token)
+- ✅ **Memory Profiling**: Simulated memory usage statistics
+- ✅ **GPU Acceleration**: Simulated acceleration metrics
 
-```
-https://your-username.github.io/quantum-memory-compiler/
-```
+## 🔐 **Security Considerations**
 
-### Custom Domain
+- ✅ Environment variables are properly secured
+- ✅ IBM Quantum tokens are stored as encrypted secrets
+- ✅ No sensitive data is exposed in the client-side code
+- ✅ Demo mode provides full functionality without backend dependencies
 
-```
-https://your-domain.com/
-```
+## 📝 **Updating the Deployment**
 
-## 🧪 **Testing Deployment**
+To update your deployed site:
 
-### 1. **Local Testing**
+1. Make changes to your code
+2. Commit and push to the `main` branch
+3. GitHub Actions will automatically rebuild and redeploy
+4. Changes will be live within 2-5 minutes
 
-```bash
-# Build'i test edin
-npm run build
-npx serve -s build
+## 🎯 **Performance Optimization**
 
-# http://localhost:3000 adresinde test edin
-```
+The deployment includes:
 
-### 2. **GitHub Pages Testing**
-
-1. Repository'ye push edin
-2. Actions tab'ında build'i kontrol edin
-3. Deploy edilen URL'yi test edin
-4. IBM Quantum token'ının çalıştığını doğrulayın
-
-## 🔧 **Troubleshooting**
-
-### Common Issues
-
-1. **Build Fails**
-   - Dependencies'leri kontrol edin
-   - Environment variables'ları doğrulayın
-   - Build logs'ları inceleyin
-
-2. **IBM Quantum Token Not Working**
-   - Token format'ını kontrol edin
-   - GitHub Secrets'ları doğrulayın
-   - Browser console'unu kontrol edin
-
-3. **404 Errors**
-   - `PUBLIC_URL` ayarını kontrol edin
-   - Routing konfigürasyonunu doğrulayın
-   - GitHub Pages settings'i kontrol edin
-
-### Debug Commands
-
-```bash
-# Environment variables'ları kontrol edin
-echo $REACT_APP_IBM_QUANTUM_TOKEN
-
-# Build output'unu kontrol edin
-ls -la build/
-
-# GitHub Pages status'unu kontrol edin
-curl -I https://your-username.github.io/quantum-memory-compiler/
-```
+- ✅ Production build optimization
+- ✅ Code splitting and lazy loading
+- ✅ Gzip compression
+- ✅ Source map generation disabled for smaller bundle size
+- ✅ Efficient caching strategies
 
 ## 📞 **Support**
 
-Deployment ile ilgili sorunlar için:
-1. GitHub Issues'da sorun açın
-2. Build logs'ları paylaşın
-3. Environment configuration'ınızı kontrol edin
+If you encounter issues:
+
+1. Check the **Actions** tab for detailed logs
+2. Review this troubleshooting guide
+3. Ensure repository permissions are correctly configured
+4. Verify GitHub Pages is enabled with **GitHub Actions** as source
 
 ---
 
-**Son Güncelleme**: Ocak 2025  
-**Versiyon**: 2.2.0 
+**Last Updated:** December 2024
+**Workflow Version:** 2.0
+**Compatibility:** GitHub Pages, React 18, Node.js 18+ 

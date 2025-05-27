@@ -11,6 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
@@ -18,56 +19,59 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  # Build job
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Use personal access token if GITHUB_TOKEN doesn't work
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || github.token }}
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: web_dashboard/quantum-dashboard/package-lock.json
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web_dashboard/quantum-dashboard/package-lock.json
 
-    - name: Install dependencies
-      run: |
-        cd web_dashboard/quantum-dashboard
-        npm ci
+      - name: Install dependencies
+        run: |
+          cd web_dashboard/quantum-dashboard
+          npm ci
 
-    - name: Build application
-      env:
-        # GitHub Pages Configuration
-        REACT_APP_GITHUB_PAGES: true
-        PUBLIC_URL: /quantum-memory-compiler
-        
-        # API Configuration (Demo Mode for GitHub Pages)
-        REACT_APP_API_URL: demo://api.quantum-memory-compiler.local
-        REACT_APP_DEMO_MODE: true
-        REACT_APP_ENV: production
-        
-        # IBM Quantum Configuration (from secrets)
-        REACT_APP_IBM_QUANTUM_TOKEN: ${{ secrets.IBM_QUANTUM_TOKEN }}
-        REACT_APP_IBM_QUANTUM_INSTANCE: ibm_quantum
-        REACT_APP_IBM_QUANTUM_CHANNEL: ibm_quantum
-        
-        # Build Configuration
-        NODE_ENV: production
-        GENERATE_SOURCEMAP: false
-        
-      run: |
-        cd web_dashboard/quantum-dashboard
-        npm run build
+      - name: Build application
+        env:
+          # GitHub Pages Configuration
+          REACT_APP_GITHUB_PAGES: true
+          PUBLIC_URL: /quantum-memory-compiler
+          
+          # API Configuration (Demo Mode for GitHub Pages)
+          REACT_APP_API_URL: demo://api.quantum-memory-compiler.local
+          REACT_APP_DEMO_MODE: true
+          REACT_APP_ENV: production
+          
+          # IBM Quantum Configuration (from secrets)
+          REACT_APP_IBM_QUANTUM_TOKEN: ${{ secrets.IBM_QUANTUM_TOKEN }}
+          REACT_APP_IBM_QUANTUM_INSTANCE: ibm_quantum
+          REACT_APP_IBM_QUANTUM_CHANNEL: ibm_quantum
+          
+          # Build Configuration
+          NODE_ENV: production
+          GENERATE_SOURCEMAP: false
+          
+        run: |
+          cd web_dashboard/quantum-dashboard
+          npm run build
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./web_dashboard/quantum-dashboard/build
-        cname: quantum-memory-compiler.github.io
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web_dashboard/quantum-dashboard/build
 
   # Deployment job
   deploy:
@@ -75,7 +79,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build-and-deploy
+    needs: build
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to GitHub Pages
