@@ -5,6 +5,7 @@ import envService from '../services/envService';
 import ApiConfiguration from './ApiConfiguration';
 import ApiStatus from './ApiStatus';
 import IBMQuantumConfig from './IBMQuantumConfig';
+import LiveUserCounter from './LiveUserCounter';
 
 const Dashboard: React.FC = () => {
   const config = envService.getConfig();
@@ -91,6 +92,11 @@ const Dashboard: React.FC = () => {
               </Typography>
             </CardContent>
           </Card>
+        </Grid>
+
+        {/* Live User Counter */}
+        <Grid item xs={12} md={6} lg={4}>
+          <LiveUserCounter />
         </Grid>
       </Grid>
 

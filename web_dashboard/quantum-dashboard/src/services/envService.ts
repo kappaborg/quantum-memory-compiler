@@ -29,14 +29,21 @@ class EnvironmentService {
   private loadConfiguration(): EnvironmentConfig {
     // Check if we're in GitHub Pages environment
     const isGitHubPages = process.env.REACT_APP_GITHUB_PAGES === 'true' || 
-                         window.location.hostname.includes('github.io');
+                         window.location.hostname.includes('github.io') ||
+                         window.location.hostname.includes('github.com');
 
     // Load IBM Quantum token from environment or localStorage
     const ibmToken = this.getIBMQuantumToken();
 
+    // Determine API URL based on environment
+    const apiUrl = this.determineApiUrl(isGitHubPages);
+
+    // Demo mode logic
+    const isDemoMode = this.determineDemoMode(isGitHubPages, ibmToken, apiUrl);
+
     return {
-      apiUrl: process.env.REACT_APP_API_URL || 'http://localhost:5001',
-      isDemoMode: process.env.REACT_APP_DEMO_MODE === 'true' || !ibmToken,
+      apiUrl,
+      isDemoMode,
       isGitHubPages,
       ibmQuantum: {
         token: ibmToken,
@@ -49,6 +56,52 @@ class EnvironmentService {
         environment: process.env.REACT_APP_ENV || 'development'
       }
     };
+  }
+
+  private determineApiUrl(isGitHubPages: boolean): string {
+    // Priority order for API URL:
+    // 1. Environment variable
+    // 2. localStorage setting
+    // 3. Default based on environment
+
+    const envApiUrl = process.env.REACT_APP_API_URL;
+    if (envApiUrl && envApiUrl !== 'http://localhost:5001') {
+      return envApiUrl;
+    }
+
+    const savedApiUrl = localStorage.getItem('quantum_api_url');
+    if (savedApiUrl) {
+      return savedApiUrl;
+    }
+
+    if (isGitHubPages) {
+      // For GitHub Pages, use demo mode by default
+      return 'demo://api.quantum-memory-compiler.local';
+    }
+
+    return 'http://localhost:5001';
+  }
+
+  private determineDemoMode(isGitHubPages: boolean, ibmToken?: string, apiUrl?: string): boolean {
+    // Force demo mode if:
+    // 1. Explicitly set in environment
+    // 2. On GitHub Pages without real API
+    // 3. API URL is demo URL
+    // 4. No IBM token available
+
+    if (process.env.REACT_APP_DEMO_MODE === 'true') {
+      return true;
+    }
+
+    if (apiUrl?.startsWith('demo://')) {
+      return true;
+    }
+
+    if (isGitHubPages && (!apiUrl || apiUrl.includes('localhost'))) {
+      return true;
+    }
+
+    return false;
   }
 
   private getIBMQuantumToken(): string | undefined {
@@ -138,6 +191,16 @@ class EnvironmentService {
   }
 
   /**
+   * Check if API is available (not demo mode)
+   */
+  isApiAvailable(): boolean {
+    return !this.config.isDemoMode && 
+           !this.config.apiUrl.startsWith('demo://') &&
+           (this.config.apiUrl !== 'http://localhost:5001' || 
+           !this.config.isGitHubPages);
+  }
+
+  /**
    * Get IBM Quantum configuration
    */
   getIBMQuantumConfig() {
@@ -153,6 +216,7 @@ class EnvironmentService {
    */
   setApiUrl(url: string): void {
     this.config.apiUrl = url;
+    this.config.isDemoMode = url.startsWith('demo://');
     localStorage.setItem('quantum_api_url', url);
   }
 

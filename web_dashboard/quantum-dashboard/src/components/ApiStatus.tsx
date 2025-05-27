@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ApiService } from '../services/apiService';
+import envService from '../services/envService';
 
 interface ApiStatusProps {
   onStatusChange?: (isConnected: boolean) => void;
@@ -28,11 +29,7 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ onStatusChange }) => {
   const [isChecking, setIsChecking] = useState(false);
   const [apiInfo, setApiInfo] = useState<any>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState({
-    mode: 'demo',
-    apiUrl: 'http://localhost:5001',
-    isDemo: true
-  });
+  const [config, setConfig] = useState(envService.getConfig());
 
   const checkApiStatus = useCallback(async () => {
     setIsChecking(true);
@@ -42,7 +39,6 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ onStatusChange }) => {
         const info = await ApiService.getApiInfo();
         setApiInfo(info);
         setIsConnected(true);
-        setSettings(prev => ({ ...prev, isDemo: false }));
       } else {
         setIsConnected(false);
         setApiInfo(null);
@@ -60,35 +56,27 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ onStatusChange }) => {
     }
   }, [onStatusChange, isConnected]);
 
-  const saveSettings = () => {
-    localStorage.setItem('quantum_api_config', JSON.stringify(settings));
-    
-    if (!settings.isDemo) {
-      ApiService.setBaseUrl(settings.apiUrl);
-    }
-    
-    setShowSettings(false);
+  const updateApiUrl = (url: string) => {
+    envService.setApiUrl(url);
+    ApiService.setBaseUrl(url);
+    setConfig(envService.getConfig());
     checkApiStatus();
   };
 
-  const loadSettings = () => {
-    const saved = localStorage.getItem('quantum_api_config');
-    if (saved) {
-      try {
-        const config = JSON.parse(saved);
-        setSettings(config);
-        
-        if (!config.isDemo) {
-          ApiService.setBaseUrl(config.apiUrl);
-        }
-      } catch (e) {
-        console.error('Failed to load API settings:', e);
-      }
+  const toggleDemoMode = () => {
+    const newConfig = envService.getConfig();
+    if (newConfig.isDemoMode) {
+      // Switch to real API mode
+      updateApiUrl('http://localhost:5001');
+    } else {
+      // Switch to demo mode
+      updateApiUrl('demo://api.quantum-memory-compiler.local');
     }
+    setShowSettings(false);
   };
 
   useEffect(() => {
-    loadSettings();
+    setConfig(envService.getConfig());
     checkApiStatus();
     
     // Check API status every 30 seconds
@@ -96,13 +84,36 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ onStatusChange }) => {
     return () => clearInterval(interval);
   }, [checkApiStatus]);
 
+  const getStatusColor = () => {
+    if (config.isDemoMode) return 'warning';
+    return isConnected ? 'success' : 'error';
+  };
+
+  const getStatusLabel = () => {
+    if (config.isDemoMode) return 'Demo Mode';
+    return isConnected ? 'Connected' : 'Disconnected';
+  };
+
+  const getStatusMessage = () => {
+    if (config.isDemoMode) {
+      return 'Running in demo mode with simulated data. All features are available for testing.';
+    }
+    if (isConnected && apiInfo) {
+      return `Connected to ${apiInfo.name} v${apiInfo.version} - ${apiInfo.endpoints?.length || 0} endpoints available`;
+    }
+    if (!isConnected) {
+      return `Cannot connect to API server at ${config.apiUrl}. Check if the server is running.`;
+    }
+    return 'Checking connection...';
+  };
+
   return (
     <Box sx={{ mb: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
         <Typography variant="h6">API Status:</Typography>
         <Chip
-          label={isConnected ? 'Connected' : settings.isDemo ? 'Demo Mode' : 'Disconnected'}
-          color={isConnected ? 'success' : settings.isDemo ? 'warning' : 'error'}
+          label={getStatusLabel()}
+          color={getStatusColor()}
           variant={isChecking ? 'outlined' : 'filled'}
         />
         <Button
@@ -122,71 +133,84 @@ const ApiStatus: React.FC<ApiStatusProps> = ({ onStatusChange }) => {
         </Button>
       </Box>
 
-      {isConnected && apiInfo && (
-        <Alert severity="success" sx={{ mb: 1 }}>
-          Connected to {apiInfo.name} v{apiInfo.version} - {apiInfo.endpoints?.length || 0} endpoints available
-        </Alert>
-      )}
-
-      {!isConnected && !settings.isDemo && (
-        <Alert severity="error" sx={{ mb: 1 }}>
-          Cannot connect to API server at {settings.apiUrl}. Check if the server is running.
-        </Alert>
-      )}
-
-      {settings.isDemo && (
-        <Alert severity="info" sx={{ mb: 1 }}>
-          Running in demo mode. Some features may be limited. Connect to a real API server for full functionality.
-        </Alert>
-      )}
+      <Alert severity={getStatusColor()} sx={{ mb: 1 }}>
+        {getStatusMessage()}
+        {config.isGitHubPages && (
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="caption" display="block">
+              🌐 Running on GitHub Pages - Demo mode is automatically enabled for the best experience.
+            </Typography>
+          </Box>
+        )}
+      </Alert>
 
       <Dialog open={showSettings} onClose={() => setShowSettings(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>API Settings</DialogTitle>
+        <DialogTitle>API Configuration</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              {config.isGitHubPages 
+                ? 'GitHub Pages detected. Demo mode provides full functionality without requiring a backend server.'
+                : 'Configure your API connection settings below.'
+              }
+            </Alert>
+
             <FormControlLabel
               control={
                 <Switch
-                  checked={settings.isDemo}
-                  onChange={(e) => setSettings(prev => ({ ...prev, isDemo: e.target.checked }))}
+                  checked={config.isDemoMode}
+                  onChange={toggleDemoMode}
                 />
               }
               label="Demo Mode"
               sx={{ mb: 2 }}
             />
 
-            {!settings.isDemo && (
+            {!config.isDemoMode && (
               <TextField
                 fullWidth
                 label="API URL"
-                value={settings.apiUrl}
-                onChange={(e) => setSettings(prev => ({ ...prev, apiUrl: e.target.value }))}
+                value={config.apiUrl}
+                onChange={(e) => updateApiUrl(e.target.value)}
                 placeholder="http://localhost:5001"
                 sx={{ mb: 2 }}
+                helperText="Enter the URL of your Quantum Memory Compiler API server"
               />
             )}
 
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Mode</InputLabel>
+              <InputLabel>Environment</InputLabel>
               <Select
-                value={settings.mode}
-                onChange={(e) => setSettings(prev => ({ ...prev, mode: e.target.value }))}
+                value={config.development.environment}
+                disabled
               >
-                <MenuItem value="demo">Demo</MenuItem>
                 <MenuItem value="development">Development</MenuItem>
                 <MenuItem value="production">Production</MenuItem>
+                <MenuItem value="demo">Demo</MenuItem>
               </Select>
             </FormControl>
 
             <Typography variant="body2" color="text.secondary">
-              Demo mode uses mock data and doesn't require a running API server.
-              Development/Production modes connect to a real Quantum Memory Compiler API server.
+              <strong>Demo Mode:</strong> Uses simulated data and doesn't require a running API server. 
+              Perfect for testing and demonstrations.
+              <br /><br />
+              <strong>API Mode:</strong> Connects to a real Quantum Memory Compiler API server for 
+              full quantum circuit simulation and compilation capabilities.
             </Typography>
+
+            {config.isGitHubPages && (
+              <Alert severity="warning" sx={{ mt: 2 }}>
+                <Typography variant="caption">
+                  <strong>GitHub Pages Note:</strong> Real API connections may be blocked due to CORS policies. 
+                  Demo mode is recommended for GitHub Pages deployment.
+                </Typography>
+              </Alert>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowSettings(false)}>Cancel</Button>
-          <Button onClick={saveSettings} variant="contained">Save</Button>
+          <Button onClick={() => setShowSettings(false)}>Close</Button>
+          <Button onClick={checkApiStatus} variant="contained">Test Connection</Button>
         </DialogActions>
       </Dialog>
     </Box>

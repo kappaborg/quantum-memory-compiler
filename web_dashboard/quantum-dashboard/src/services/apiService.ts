@@ -1,9 +1,12 @@
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import envService from './envService';
+
 /**
- * Real API Service for Quantum Memory Compiler
- * Connects to the actual backend API server
+ * API Service for Quantum Memory Compiler
+ * Handles all API communications with automatic fallback to demo mode
  */
 
-export interface Circuit {
+interface CircuitData {
   name: string;
   qubits: number;
   gates: Array<{
@@ -17,258 +20,343 @@ export interface Circuit {
   }>;
 }
 
-export interface SimulationParams {
+interface SimulationParams {
   shots?: number;
   noise?: boolean;
   mitigation?: boolean;
   backend?: string;
 }
 
-export interface CompilationParams {
+interface CompilationParams {
   strategy?: string;
   use_meta_compiler?: boolean;
 }
 
-export class ApiService {
-  private static baseUrl = 'http://localhost:5001/api';
-  
-  private static async request(endpoint: string, options: RequestInit = {}): Promise<any> {
-    const url = `${this.baseUrl}${endpoint}`;
+class ApiServiceClass {
+  private axiosInstance: AxiosInstance;
+  private baseUrl: string;
+  private isDemoMode: boolean;
+
+  constructor() {
+    const config = envService.getConfig();
+    this.baseUrl = config.apiUrl;
+    this.isDemoMode = config.isDemoMode;
     
-    const defaultOptions: RequestInit = {
+    this.axiosInstance = axios.create({
+      timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers,
       },
-    };
+    });
+
+    this.setupInterceptors();
+    this.updateBaseUrl();
+  }
+
+  private setupInterceptors(): void {
+    // Request interceptor
+    this.axiosInstance.interceptors.request.use(
+      (config) => {
+        // Skip actual requests in demo mode
+        if (this.isDemoMode || this.baseUrl.startsWith('demo://')) {
+          console.log('🎭 Demo Mode: Intercepting API request:', config.url);
+          return Promise.reject(new Error('DEMO_MODE_INTERCEPT'));
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Response interceptor
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.message === 'DEMO_MODE_INTERCEPT') {
+          // Return demo response
+          return this.getDemoResponse(error.config);
+        }
+        
+        console.error('API Error:', error);
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  private getDemoResponse(config: any): Promise<AxiosResponse> {
+    const url = config.url || '';
+    const method = config.method || 'get';
     
-    const response = await fetch(url, { ...defaultOptions, ...options });
-    
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    // Simulate network delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          data: this.generateDemoData(url, method, config.data),
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+        } as AxiosResponse);
+      }, 300 + Math.random() * 700); // 300-1000ms delay
+    });
+  }
+
+  private generateDemoData(url: string, method: string, requestData?: any): any {
+    if (url.includes('/api/info')) {
+      return {
+        success: true,
+        name: 'Quantum Memory Compiler API (Demo)',
+        version: '2.2.0',
+        system_info: {
+          platform: 'Demo Environment',
+          python_version: '3.9.0',
+          memory: '4.0 GB'
+        },
+        gpu_support: true,
+        endpoints: ['simulation', 'compilation', 'visualization', 'ibm_quantum']
+      };
     }
-    
-    return response.json();
+
+    if (url.includes('/api/circuit/simulate')) {
+      const shots = requestData?.shots || 1024;
+      return {
+        success: true,
+        results: {
+          '00': Math.floor(shots * 0.5 + Math.random() * shots * 0.1),
+          '01': Math.floor(shots * 0.1 + Math.random() * shots * 0.1),
+          '10': Math.floor(shots * 0.1 + Math.random() * shots * 0.1),
+          '11': Math.floor(shots * 0.3 + Math.random() * shots * 0.1)
+        },
+        execution_time: 0.1 + Math.random() * 0.5,
+        shots,
+        backend: 'demo_simulator'
+      };
+    }
+
+    if (url.includes('/api/circuit/compile')) {
+      return {
+        success: true,
+        compiled_circuit: {
+          name: 'Compiled Circuit (Demo)',
+          qubits: requestData?.circuit?.qubits || 2,
+          gates: requestData?.circuit?.gates || []
+        },
+        metrics: {
+          original_qubits: requestData?.circuit?.qubits || 2,
+          compiled_qubits: requestData?.circuit?.qubits || 2,
+          original_gates: requestData?.circuit?.gates?.length || 0,
+          compiled_gates: Math.max(1, (requestData?.circuit?.gates?.length || 0) - 1),
+          original_depth: requestData?.circuit?.gates?.length || 0,
+          compiled_depth: Math.max(1, (requestData?.circuit?.gates?.length || 0) - 1),
+          strategy: requestData?.strategy || 'demo',
+          meta_compiler_used: requestData?.use_meta_compiler || false
+        },
+        execution_time: 0.2 + Math.random() * 0.3
+      };
+    }
+
+    if (url.includes('/api/circuit/visualize')) {
+      return {
+        success: true,
+        image: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        message: 'Demo visualization generated'
+      };
+    }
+
+    if (url.includes('/api/health')) {
+      return {
+        success: true,
+        status: 'healthy',
+        timestamp: new Date().toISOString()
+      };
+    }
+
+    // Default demo response
+    return {
+      success: true,
+      message: 'Demo mode response',
+      data: {}
+    };
   }
 
-  static async getApiInfo(): Promise<any> {
-    return this.request('/info');
+  public setBaseUrl(url: string): void {
+    this.baseUrl = url;
+    this.isDemoMode = url.startsWith('demo://') || envService.isDemoMode();
+    this.updateBaseUrl();
   }
 
-  static async visualizeCircuit(circuit: Circuit, format: string = 'base64'): Promise<any> {
-    return this.request('/circuit/visualize', {
-      method: 'POST',
-      body: JSON.stringify({
+  private updateBaseUrl(): void {
+    if (!this.isDemoMode && !this.baseUrl.startsWith('demo://')) {
+      this.axiosInstance.defaults.baseURL = this.baseUrl;
+    }
+  }
+
+  // Health check
+  public async healthCheck(): Promise<boolean> {
+    try {
+      const response = await this.axiosInstance.get('/api/health');
+      return response.data.success === true;
+    } catch (error) {
+      console.log('Health check failed, using demo mode');
+      return this.isDemoMode; // Return true in demo mode
+    }
+  }
+
+  // Get API info
+  public async getApiInfo(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.get('/api/info');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get API info');
+    }
+  }
+
+  // Circuit simulation
+  public async simulateCircuit(circuit: CircuitData, params: SimulationParams = {}): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post('/api/circuit/simulate', {
+        circuit,
+        ...params
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Simulation failed');
+    }
+  }
+
+  // Circuit compilation
+  public async compileCircuit(circuit: CircuitData, params: CompilationParams = {}): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post('/api/circuit/compile', {
+        circuit,
+        ...params
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Compilation failed');
+    }
+  }
+
+  // Circuit visualization
+  public async visualizeCircuit(circuit: CircuitData, format: string = 'base64'): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post('/api/circuit/visualize', {
         circuit,
         format
-      }),
-    });
-  }
-
-  static async simulateCircuit(circuit: Circuit, params: SimulationParams = {}): Promise<any> {
-    return this.request('/circuit/simulate', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit,
-        shots: params.shots || 1024,
-        noise: params.noise || false,
-        mitigation: params.mitigation || false
-      }),
-    });
-  }
-
-  static async compileCircuit(circuit: Circuit, params: CompilationParams = {}): Promise<any> {
-    return this.request('/circuit/compile', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit,
-        strategy: params.strategy || 'balanced',
-        use_meta_compiler: params.use_meta_compiler || false
-      }),
-    });
-  }
-
-  static async profileMemory(circuit: Circuit): Promise<any> {
-    return this.request('/memory/profile', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit
-      }),
-    });
-  }
-
-  static async getExamples(): Promise<any> {
-    return this.request('/examples');
-  }
-
-  static async uploadCircuit(file: File): Promise<any> {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    return this.request('/circuit/upload', {
-      method: 'POST',
-      body: formData,
-      headers: {}, // Let browser set Content-Type for FormData
-    });
-  }
-
-  static async downloadCircuit(circuit: Circuit, format: string = 'json', filename?: string): Promise<Blob> {
-    const response = await fetch(`${this.baseUrl}/circuit/download`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        circuit,
-        format,
-        filename: filename || 'quantum_circuit'
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.status} ${response.statusText}`);
-    }
-    
-    return response.blob();
-  }
-
-  // IBM Quantum Integration
-  static async getIBMStatus(token?: string): Promise<any> {
-    const params = token ? `?token=${encodeURIComponent(token)}` : '';
-    return this.request(`/ibm/status${params}`);
-  }
-
-  static async getIBMBackends(token?: string): Promise<any> {
-    const params = token ? `?token=${encodeURIComponent(token)}` : '';
-    return this.request(`/ibm/backends${params}`);
-  }
-
-  static async executeIBMCircuit(
-    circuit: Circuit, 
-    backend: string, 
-    shots: number = 1024,
-    token?: string
-  ): Promise<any> {
-    return this.request('/ibm/execute', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit,
-        backend,
-        shots,
-        token
-      }),
-    });
-  }
-
-  static async transpileIBMCircuit(
-    circuit: Circuit, 
-    backend: string,
-    optimization_level: number = 1,
-    token?: string
-  ): Promise<any> {
-    return this.request('/ibm/transpile', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit,
-        backend,
-        optimization_level,
-        token
-      }),
-    });
-  }
-
-  // GPU Acceleration
-  static async getAccelerationStatus(): Promise<any> {
-    return this.request('/acceleration/status');
-  }
-
-  static async analyzeCircuitAcceleration(circuit: Circuit): Promise<any> {
-    return this.request('/acceleration/analyze', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit
-      }),
-    });
-  }
-
-  static async runAcceleratedSimulation(
-    circuit: Circuit, 
-    shots: number = 1024,
-    method: string = 'auto',
-    optimize_memory: boolean = true
-  ): Promise<any> {
-    return this.request('/acceleration/simulate', {
-      method: 'POST',
-      body: JSON.stringify({
-        circuit,
-        shots,
-        method,
-        optimize_memory
-      }),
-    });
-  }
-
-  static async runAccelerationBenchmark(
-    qubit_range: number[] = [4, 6],
-    gate_counts: number[] = [50, 100],
-    shots: number = 100
-  ): Promise<any> {
-    return this.request('/acceleration/benchmark', {
-      method: 'POST',
-      body: JSON.stringify({
-        qubit_range,
-        gate_counts,
-        shots
-      }),
-    });
-  }
-
-  static async getMemoryReport(): Promise<any> {
-    return this.request('/acceleration/memory/report');
-  }
-
-  static async cleanupMemory(force_gc: boolean = true): Promise<any> {
-    return this.request('/acceleration/memory/cleanup', {
-      method: 'POST',
-      body: JSON.stringify({
-        force_gc
-      }),
-    });
-  }
-
-  // Cache Management
-  static async getCacheStats(): Promise<any> {
-    return this.request('/cache/stats');
-  }
-
-  static async clearCache(cache_type?: string): Promise<any> {
-    return this.request('/cache/clear', {
-      method: 'POST',
-      body: JSON.stringify({
-        cache_type
-      }),
-    });
-  }
-
-  static async cleanupCache(): Promise<any> {
-    return this.request('/cache/cleanup', {
-      method: 'POST',
-    });
-  }
-
-  // Health Check
-  static async healthCheck(): Promise<boolean> {
-    try {
-      await this.getApiInfo();
-      return true;
+      });
+      return response.data;
     } catch (error) {
-      console.error('API health check failed:', error);
-      return false;
+      throw new Error('Visualization failed');
     }
   }
 
-  // Set API base URL (for different environments)
-  static setBaseUrl(url: string): void {
-    this.baseUrl = url.endsWith('/api') ? url : `${url}/api`;
+  // Circuit upload
+  public async uploadCircuit(file: File): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await this.axiosInstance.post('/api/circuit/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Upload failed');
+    }
   }
-} 
+
+  // Circuit download
+  public async downloadCircuit(circuit: CircuitData, format: string): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post('/api/circuit/download', {
+        circuit,
+        format
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Download failed');
+    }
+  }
+
+  // IBM Quantum status
+  public async getIBMQuantumStatus(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.get('/api/ibm/status');
+      return response.data;
+    } catch (error) {
+      throw new Error('IBM Quantum status check failed');
+    }
+  }
+
+  // IBM Quantum backends
+  public async getIBMQuantumBackends(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.get('/api/ibm/backends');
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to get IBM Quantum backends');
+    }
+  }
+
+  // IBM Quantum execution
+  public async executeOnIBMQuantum(circuit: CircuitData, backend: string, shots: number): Promise<any> {
+    try {
+      const response = await this.axiosInstance.post('/api/ibm/execute', {
+        circuit,
+        backend,
+        shots
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('IBM Quantum execution failed');
+    }
+  }
+
+  // GPU acceleration status
+  public async getGPUStatus(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.get('/api/gpu/status');
+      return response.data;
+    } catch (error) {
+      throw new Error('GPU status check failed');
+    }
+  }
+
+  // Memory profiling
+  public async getMemoryProfile(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.get('/api/memory/profile');
+      return response.data;
+    } catch (error) {
+      throw new Error('Memory profiling failed');
+    }
+  }
+
+  // Cache management
+  public async clearCache(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.delete('/api/cache/clear');
+      return response.data;
+    } catch (error) {
+      throw new Error('Cache clear failed');
+    }
+  }
+
+  // Get cache status
+  public async getCacheStatus(): Promise<any> {
+    try {
+      const response = await this.axiosInstance.get('/api/cache/status');
+      return response.data;
+    } catch (error) {
+      throw new Error('Cache status check failed');
+    }
+  }
+}
+
+// Create singleton instance
+export const ApiService = new ApiServiceClass();
+
+// Export for React components
+export default ApiService; 
