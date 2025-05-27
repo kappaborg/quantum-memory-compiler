@@ -27,9 +27,10 @@ import {
     Typography
 } from '@mui/material';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ApiService } from '../services/apiService';
 import { MockApiService } from '../services/mockApiService';
+import userTrackingService from '../services/userTrackingService';
 
 // Function to get API configuration from localStorage
 const getApiConfig = () => {
@@ -114,6 +115,12 @@ const CircuitEditor: React.FC = () => {
   const [gateParams, setGateParams] = useState<{ [key: string]: number }>({});
   const [hoveredQubit, setHoveredQubit] = useState<number | null>(null);
 
+  useEffect(() => {
+    // Track page view
+    userTrackingService.trackPageView('/circuit-editor');
+    userTrackingService.trackAction('Circuit Editor Opened');
+  }, []);
+
   const getNextColumn = useCallback(() => {
     if (circuit.gates.length === 0) return 0;
     return Math.max(...circuit.gates.map(g => g.column)) + 1;
@@ -165,6 +172,8 @@ const CircuitEditor: React.FC = () => {
         setSelectedGate(null);
       }
     }
+
+    userTrackingService.trackAction(`Added ${selectedGate} Gate`);
   }, [selectedGate, selectedQubits, gateParams, getNextColumn]);
 
   const removeGate = useCallback((gateId: string) => {
@@ -205,6 +214,7 @@ const CircuitEditor: React.FC = () => {
   }, []);
 
   const visualizeCircuit = async () => {
+    userTrackingService.trackAction('Visualized Circuit');
     setLoading(true);
     setError(null);
     try {
@@ -243,6 +253,7 @@ const CircuitEditor: React.FC = () => {
   };
 
   const simulateCircuit = async () => {
+    userTrackingService.trackAction('Started Circuit Simulation');
     setLoading(true);
     setError(null);
     try {

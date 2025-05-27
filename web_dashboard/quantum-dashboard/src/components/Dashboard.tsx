@@ -1,7 +1,9 @@
 import { CloudQueue, Computer, Memory, Speed } from '@mui/icons-material';
 import { Alert, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import ApiService from '../services/apiService';
 import envService from '../services/envService';
+import userTrackingService from '../services/userTrackingService';
 import ApiConfiguration from './ApiConfiguration';
 import ApiStatus from './ApiStatus';
 import IBMQuantumConfig from './IBMQuantumConfig';
@@ -9,7 +11,42 @@ import LiveUserCounter from './LiveUserCounter';
 
 const Dashboard: React.FC = () => {
   const config = envService.getConfig();
-  
+  const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const [apiInfo, setApiInfo] = useState<any>(null);
+
+  useEffect(() => {
+    // Track dashboard page view
+    userTrackingService.trackPageView('/dashboard');
+    userTrackingService.trackAction('Dashboard Loaded');
+
+    checkApiStatus();
+  }, []);
+
+  const checkApiStatus = async () => {
+    try {
+      setApiStatus('checking');
+      const isHealthy = await ApiService.healthCheck();
+      if (isHealthy) {
+        setApiStatus('connected');
+        const info = await ApiService.getApiInfo();
+        setApiInfo(info);
+        userTrackingService.trackAction('API Connected');
+      } else {
+        setApiStatus('disconnected');
+        userTrackingService.trackAction('API Connection Failed');
+      }
+    } catch (error) {
+      console.error('API status check failed:', error);
+      setApiStatus('disconnected');
+      userTrackingService.trackAction('API Error');
+    }
+  };
+
+  const handleCardClick = (cardName: string, path: string) => {
+    userTrackingService.trackAction(`Clicked ${cardName} Card`);
+    // Navigation logic would go here
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       {config.isDemoMode && (
