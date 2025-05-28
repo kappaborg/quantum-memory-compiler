@@ -1,30 +1,30 @@
 import {
-    AccountTree as CircuitIcon,
-    Clear as ClearIcon,
-    Build as CompileIcon,
-    Download as DownloadIcon,
-    Save as SaveIcon,
-    PlayArrow as SimulateIcon,
-    Visibility as VisualizeIcon
+  AccountTree as CircuitIcon,
+  Clear as ClearIcon,
+  Build as CompileIcon,
+  Download as DownloadIcon,
+  Save as SaveIcon,
+  PlayArrow as SimulateIcon,
+  Visibility as VisualizeIcon
 } from '@mui/icons-material';
 import {
-    Alert,
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Chip,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Grid,
-    LinearProgress,
-    Menu,
-    MenuItem,
-    Paper,
-    TextField,
-    Typography
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  LinearProgress,
+  Menu,
+  MenuItem,
+  Paper,
+  TextField,
+  Typography
 } from '@mui/material';
 import axios from 'axios';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -721,7 +721,7 @@ const CircuitEditor: React.FC = () => {
                 />
               </Box>
             ) : (
-              <pre style={{ backgroundColor: '#5c1839', padding: 16, borderRadius: 8, overflow: 'auto' }}>
+              <pre style={{ backgroundColor: '#000000', padding: 16, borderRadius: 8, overflow: 'auto' }}>
                 {JSON.stringify(result.data, null, 2)}
               </pre>
             )}
