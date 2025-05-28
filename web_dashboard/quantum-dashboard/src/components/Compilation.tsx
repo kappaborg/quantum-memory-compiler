@@ -502,7 +502,7 @@ const Compilation: React.FC = () => {
                   </AccordionSummary>
                   <AccordionDetails>
                     <pre style={{ 
-                      backgroundColor: '#f5f5f5', 
+                      backgroundColor: '#5c1839', 
                       padding: 16, 
                       borderRadius: 8, 
                       overflow: 'auto',
@@ -520,7 +520,7 @@ const Compilation: React.FC = () => {
                   </AccordionSummary>
                   <AccordionDetails>
                     <pre style={{ 
-                      backgroundColor: '#f5f5f5', 
+                      backgroundColor: '#5c1839', 
                       padding: 16, 
                       borderRadius: 8, 
                       overflow: 'auto',

@@ -721,7 +721,7 @@ const CircuitEditor: React.FC = () => {
                 />
               </Box>
             ) : (
-              <pre style={{ backgroundColor: '#f5f5f5', padding: 16, borderRadius: 8, overflow: 'auto' }}>
+              <pre style={{ backgroundColor: '#5c1839', padding: 16, borderRadius: 8, overflow: 'auto' }}>
                 {JSON.stringify(result.data, null, 2)}
               </pre>
             )}
