@@ -60,7 +60,7 @@ const Sidebar: React.FC = () => {
     >
       <Box sx={{ p: 3, borderBottom: '1px solid #2E86AB30' }}>
         <Typography variant="h6" sx={{ color: '#2E86AB', fontWeight: 700 }}>
-          🚀 Quantum Memory
+          🚀 Quantum Lab
         </Typography>
         <Typography variant="body2" sx={{ color: '#B0BEC5', mt: 0.5 }}>
           Developer: kappasutra

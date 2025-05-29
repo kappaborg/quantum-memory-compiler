@@ -110,7 +110,7 @@ if HAS_FLASK and HAS_SOCKETIO:
         emit('connection_response', {
             'status': 'connected',
             'session_id': session_id,
-            'message': 'Welcome to Quantum Memory Compiler API!'
+            'message': 'Welcome to Quantum Lab API!'
         })
         
         # Send current system status

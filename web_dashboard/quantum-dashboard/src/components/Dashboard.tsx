@@ -52,7 +52,7 @@ const Dashboard: React.FC = () => {
       
       <Typography variant="h4" sx={{ mb: 3, display: 'flex', alignItems: 'center' }}>
         <Computer sx={{ mr: 2, color: '#2E86AB' }} />
-        Quantum Memory Compiler Dashboard
+        Quantum Lab Dashboard
       </Typography>
 
       {/* API Status */}
@@ -134,7 +134,7 @@ const Dashboard: React.FC = () => {
       <Card sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="h6" sx={{ mb: 2 }}>
-            Welcome to Quantum Memory Compiler
+            Welcome to Quantum Lab
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Advanced quantum circuit compilation with GPU acceleration and IBM Quantum integration.
