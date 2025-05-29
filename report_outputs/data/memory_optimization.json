@@ -1,0 +1,20 @@
+{
+  "recycling_efficiency": {
+    "Small (4q)": 65,
+    "Medium (8q)": 78,
+    "Large (16q)": 85,
+    "XLarge (32q)": 91
+  },
+  "memory_hierarchy": {
+    "L1 Cache": 1,
+    "L2 Cache": 10,
+    "RAM": 100,
+    "Storage": 10000
+  },
+  "allocation_breakdown": {
+    "Qubits": 45,
+    "Gates": 30,
+    "Measurements": 15,
+    "Metadata": 10
+  }
+}

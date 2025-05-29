@@ -1,0 +1,14 @@
+{
+  "help": {
+    "command": "python -m quantum_memory_compiler.cli.main --help",
+    "stdout": "",
+    "stderr": "/Users/kappasutra/QUANTUM MEMORY/venv/bin/python: Error while finding module specification for 'quantum_memory_compiler.cli.main' (ModuleNotFoundError: __path__ attribute not found on 'quantum_memory_compiler.cli' while trying to find 'quantum_memory_compiler.cli.main')\n",
+    "returncode": 1
+  },
+  "version": {
+    "command": "python -c import quantum_memory_compiler; print(quantum_memory_compiler.__version__)",
+    "stdout": "0.1.0\n",
+    "stderr": "",
+    "returncode": 0
+  }
+}

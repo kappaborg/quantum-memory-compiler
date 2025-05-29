@@ -1,3 +1,9 @@
+/*
+ * Quantum Memory Compiler - Web Dashboard
+ * Copyright (c) 2025 Quantum Memory Compiler Project
+ * Licensed under the Apache License, Version 2.0
+ */
+
 import { Box, CssBaseline } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import React from 'react';

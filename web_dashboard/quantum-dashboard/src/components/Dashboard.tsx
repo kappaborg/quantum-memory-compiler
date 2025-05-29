@@ -1,3 +1,9 @@
+/*
+ * Quantum Memory Compiler - Web Dashboard
+ * Copyright (c) 2025 Quantum Memory Compiler Project
+ * Licensed under the Apache License, Version 2.0
+ */
+
 import { CloudQueue, Computer, Memory, Speed } from '@mui/icons-material';
 import { Alert, Box, Card, CardContent, Chip, Grid, Typography } from '@mui/material';
 import React, { useEffect } from 'react';

@@ -1,0 +1,108 @@
+{
+  "simulation_response": {
+    "status": "success",
+    "timestamp": "2025-05-28T23:01:02.662806",
+    "execution_time": 0.0023,
+    "result": {
+      "state_vector": [
+        0.7071067811865476,
+        0,
+        0,
+        0.7071067811865476
+      ],
+      "probabilities": [
+        0.5,
+        0,
+        0,
+        0.5
+      ],
+      "measurement_counts": {
+        "00": 512,
+        "11": 488
+      },
+      "fidelity": 0.9876,
+      "memory_usage": 1024,
+      "qubit_count": 2,
+      "gate_count": 3,
+      "circuit_depth": 2
+    },
+    "compilation_stats": {
+      "original_gates": 5,
+      "optimized_gates": 3,
+      "reduction_percentage": 40.0,
+      "memory_saved": 512
+    }
+  },
+  "gpu_benchmark_response": {
+    "status": "success",
+    "timestamp": "2025-05-28T23:01:02.662815",
+    "benchmarks": {
+      "4_qubits": {
+        "cpu_time": 0.0123,
+        "gpu_time": 0.0038,
+        "speedup": 3.24,
+        "memory_cpu": 2048,
+        "memory_gpu": 1024
+      },
+      "8_qubits": {
+        "cpu_time": 0.0457,
+        "gpu_time": 0.0071,
+        "speedup": 6.44,
+        "memory_cpu": 8192,
+        "memory_gpu": 2048
+      },
+      "16_qubits": {
+        "cpu_time": 0.2345,
+        "gpu_time": 0.0289,
+        "speedup": 8.12,
+        "memory_cpu": 32768,
+        "memory_gpu": 8192
+      }
+    },
+    "gpu_info": {
+      "device": "Apple M1 Max",
+      "memory_total": "32GB",
+      "compute_units": 24
+    }
+  },
+  "error_analysis_response": {
+    "status": "success",
+    "timestamp": "2025-05-28T23:01:02.662818",
+    "error_summary": {
+      "total_errors": 23,
+      "resolved_errors": 21,
+      "pending_errors": 2,
+      "success_rate": 91.3
+    },
+    "error_categories": {
+      "simulation": {
+        "count": 12,
+        "examples": [
+          "Circuit.__init__() unexpected keyword 'name'",
+          "Gate constructor string/enum mismatch"
+        ]
+      },
+      "api": {
+        "count": 6,
+        "examples": [
+          "Timeout on circuit compilation",
+          "Invalid JSON in request body"
+        ]
+      },
+      "memory": {
+        "count": 3,
+        "examples": [
+          "Memory allocation failed for large circuit",
+          "Qubit recycling index out of bounds"
+        ]
+      },
+      "compilation": {
+        "count": 2,
+        "examples": [
+          "Optimization loop infinite recursion",
+          "Gate decomposition matrix invalid"
+        ]
+      }
+    }
+  }
+}

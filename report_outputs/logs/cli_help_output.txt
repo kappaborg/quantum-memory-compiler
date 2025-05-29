@@ -1,0 +1,24 @@
+Quantum Memory Compiler CLI v2.2.0
+========================================
+
+Usage: quantum_memory_compiler [OPTIONS] COMMAND
+
+Options:
+  --version              Show version and exit
+  --verbose, -v          Enable verbose output
+  --config FILE          Configuration file path
+  --help                 Show this message and exit
+
+Commands:
+  compile      Compile quantum circuit with memory optimization
+  simulate     Simulate quantum circuit execution  
+  benchmark    Run performance benchmarks
+  analyze      Analyze circuit memory usage
+  optimize     Optimize existing circuit for memory efficiency
+  visualize    Generate circuit visualization
+  
+Examples:
+  quantum_memory_compiler compile circuit.qasm
+  quantum_memory_compiler simulate --shots 1000 circuit.qasm
+  quantum_memory_compiler benchmark --qubits 4,8,16
+  quantum_memory_compiler analyze --memory-profile circuit.qasm

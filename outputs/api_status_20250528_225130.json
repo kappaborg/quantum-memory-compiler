@@ -1,0 +1,35 @@
+{
+  "status": {
+    "url": "http://localhost:5000/api/status",
+    "status_code": 403,
+    "response": "",
+    "headers": {
+      "Content-Length": "0",
+      "Server": "AirTunes/860.7.1",
+      "X-Apple-ProcessingTime": "0",
+      "X-Apple-RequestReceivedTimestamp": "444167165"
+    }
+  },
+  "health": {
+    "url": "http://localhost:5000/api/health",
+    "status_code": 403,
+    "response": "",
+    "headers": {
+      "Content-Length": "0",
+      "Server": "AirTunes/860.7.1",
+      "X-Apple-ProcessingTime": "0",
+      "X-Apple-RequestReceivedTimestamp": "444167167"
+    }
+  },
+  "gpu": {
+    "url": "http://localhost:5000/api/gpu/status",
+    "status_code": 403,
+    "response": "",
+    "headers": {
+      "Content-Length": "0",
+      "Server": "AirTunes/860.7.1",
+      "X-Apple-ProcessingTime": "0",
+      "X-Apple-RequestReceivedTimestamp": "444167169"
+    }
+  }
+}

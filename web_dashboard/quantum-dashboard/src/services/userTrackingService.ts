@@ -1,3 +1,9 @@
+/*
+ * Quantum Memory Compiler - Web Dashboard
+ * Copyright (c) 2025 Quantum Memory Compiler Project
+ * Licensed under the Apache License, Version 2.0
+ */
+
 /**
  * Real User Tracking Service
  * Tracks actual users visiting and using the quantum dashboard

@@ -1,3 +1,9 @@
+/*
+ * Quantum Memory Compiler - Web Dashboard
+ * Copyright (c) 2025 Quantum Memory Compiler Project
+ * Licensed under the Apache License, Version 2.0
+ */
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';

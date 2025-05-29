@@ -1,0 +1,186 @@
+Quantum Memory Compiler - Project Structure
+==================================================
+
+.
+├── .github
+│   └── workflows
+│       └── deploy-github-pages.yml
+├── cache
+│   └── circuit
+│       └── ff1a35cedb112b9f879813ba4a5b66e1.cache
+├── demo_outputs
+│   ├── demo_bell_compiled.png
+│   ├── demo_bell_original.png
+│   └── demo_memory_usage.png
+├── jupyter_extension
+│   ├── Untitled.ipynb
+│   ├── __init__.py
+│   └── quantum_memory_compiler_magic.py
+├── outputs
+│   ├── api_status_20250528_225130.json
+│   ├── build_python_test_20250528_225130.txt
+│   ├── build_react_build_20250528_225130.txt
+│   ├── build_results_20250528_225130.json
+│   ├── cli_help_20250528_225130.txt
+│   ├── cli_results_20250528_225130.json
+│   ├── cli_version_20250528_225130.txt
+│   ├── performance_data_20250528_225130.json
+│   ├── performance_metrics_20250528_225130.png
+│   └── system_info_20250528_225130.json
+├── quantum_memory_compiler
+│   ├── __pycache__
+│   ├── acceleration
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── acceleration_manager.py
+│   │   ├── gpu_simulator.py
+│   │   ├── memory_optimizer.py
+│   │   └── parallel_gates.py
+│   ├── caching
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── cache_manager.py
+│   │   ├── circuit_cache.py
+│   │   ├── memory_cache.py
+│   │   └── simulation_cache.py
+│   ├── circuits
+│   │   └── qft_example.qmc
+│   ├── compiler
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── compiler.py
+│   │   ├── mapper.py
+│   │   ├── meta_compiler.py
+│   │   ├── optimizer.py
+│   │   └── scheduler.py
+│   ├── core
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── circuit.py
+│   │   ├── gate.py
+│   │   ├── gates.py
+│   │   ├── qubit.py
+│   │   └── visualization.py
+│   ├── docs
+│   ├── examples
+│   │   ├── __pycache__
+│   │   ├── visualizations
+│   │   │   ├── bell_state_compiled.png
+│   │   │   ├── bell_state_memory.png
+│   │   │   └── bell_state_original.png
+│   │   ├── __init__.py
+│   │   ├── bell_state_example.py
+│   │   ├── error_mitigation_demo.py
+│   │   ├── grover_search.py
+│   │   └── quantum_fourier_transform.py
+│   ├── integration
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── ibm_quantum.py
+│   │   └── qiskit_bridge.py
+│   ├── logs
+│   ├── memory
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── allocation.py
+│   │   ├── hierarchy.py
+│   │   ├── manager.py
+│   │   ├── profiler.py
+│   │   └── recycling.py
+│   ├── outputs
+│   ├── simulation
+│   │   ├── __pycache__
+│   │   ├── __init__.py
+│   │   ├── analyzer.py
+│   │   ├── error_mitigation.py
+│   │   ├── error_visualization.py
+│   │   ├── hardware.py
+│   │   ├── noise_model.py
+│   │   ├── parallel.py
+│   │   └── simulator.py
+│   ├── tests
+│   │   ├── conftest.py
+│   │   ├── test_core.py
+│   │   └── test_memory.py
+│   ├── utils
+│   │   ├── __pycache__
+│   │   └── logger.py
+│   ├── SUMMARY.md
+│   ├── __init__.py
+│   ├── api.py
+│   ├── cli.py
+│   └── cursor_extension.py
+├── quantum_memory_compiler.egg-info
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   ├── dependency_links.txt
+│   ├── entry_points.txt
+│   ├── requires.txt
+│   └── top_level.txt
+├── test_cache
+│   ├── circuit
+│   └── simulation
+│       └── ec4912fd802e7dced0c458e39e0ed382.cache
+├── test_logs
+│   ├── errors_20250528.log
+│   └── quantum_compiler_20250528.log
+├── tests
+│   ├── __pycache__
+│   ├── test_logs
+│   │   ├── errors_20250527.log
+│   │   └── quantum_compiler_20250527.log
+│   ├── README.md
+│   ├── comprehensive_gpu_test.py
+│   ├── simple_api_test.py
+│   ├── test_api_client.py
+│   ├── test_api_simulation_fix.py
+│   ├── test_gpu_acceleration.py
+│   ├── test_ibm_quantum_simple.py
+│   ├── test_logging_system.py
+│   ├── test_logs_export.json
+│   ├── test_simulator_direct.py
+│   └── test_version_2_2_0.py
+├── venv
+├── web_dashboard
+│   └── quantum-dashboard
+│       ├── build
+│       ├── node_modules
+│       ├── public
+│       │   ├── favicon.ico
+│       │   ├── index.html
+│       │   ├── logo192.png
+│       │   ├── logo512.png
+│       │   ├── manifest.json
+│       │   └── robots.txt
+│       ├── src
+│       │   ├── components
+│       │   ├── services
+│       │   ├── App.css
+│       │   ├── App.test.tsx
+│       │   ├── App.tsx
+│       │   ├── index.css
+│       │   ├── index.tsx
+│       │   ├── logo.svg
+│       │   ├── reportWebVitals.ts
+│       │   └── setupTests.ts
+│       ├── .gitignore
+│       ├── README.md
+│       ├── env.example
+│       ├── package-lock.json
+│       ├── package.json
+│       └── tsconfig.json
+├── .gitignore
+├── CAPTURE_OUTPUTS_GUIDE.md
+├── CLI_README.md
+├── GITHUB_PAGES_DEPLOYMENT.md
+├── IBM_QUANTUM_WEB_GUIDE.md
+├── IEEE_REFERENCES.md
+├── ROADMAP.md
+├── capture_outputs.py
+├── demo_ibm_quantum_web.py
+├── demo_presentation.py
+├── env.example
+├── quantum_memory_tools.sh
+├── requirements.txt
+├── setup.py
+└── test_logs_export.json

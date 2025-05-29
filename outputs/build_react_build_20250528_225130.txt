@@ -1,0 +1,28 @@
+Command: npm run build
+Working Directory: web_dashboard/quantum-dashboard
+Return Code: 0
+--- STDOUT ---
+
+> quantum-dashboard@0.1.0 build
+> react-scripts build
+
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  327.2 kB  build/static/js/main.4e5cfe4c.js
+  1.79 kB   build/static/js/453.ff482466.chunk.js
+  314 B     build/static/css/main.ab3352cc.css
+
+The project was built assuming it is hosted at /quantum-memory-compiler/.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+
+
+--- STDERR ---

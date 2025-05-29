@@ -1,3 +1,9 @@
+/*
+ * Quantum Memory Compiler - Web Dashboard
+ * Copyright (c) 2025 Quantum Memory Compiler Project
+ * Licensed under the Apache License, Version 2.0
+ */
+
 import { Settings as SettingsIcon } from '@mui/icons-material';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import React from 'react';

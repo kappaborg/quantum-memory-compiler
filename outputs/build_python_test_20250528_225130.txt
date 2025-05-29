@@ -1,0 +1,120 @@
+Command: python -m pytest tests/ -v
+Working Directory: .
+Return Code: 1
+--- STDOUT ---
+============================= test session starts ==============================
+platform darwin -- Python 3.12.3, pytest-8.3.5, pluggy-1.6.0 -- /Users/kappasutra/QUANTUM MEMORY/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/kappasutra/QUANTUM MEMORY
+plugins: anyio-4.9.0
+collecting ... collected 19 items
+
+tests/comprehensive_gpu_test.py::test_basic_acceleration PASSED          [  5%]
+tests/comprehensive_gpu_test.py::test_different_methods PASSED           [ 10%]
+tests/comprehensive_gpu_test.py::test_benchmarking PASSED                [ 15%]
+tests/comprehensive_gpu_test.py::test_memory_optimization PASSED         [ 21%]
+tests/comprehensive_gpu_test.py::test_api_integration PASSED             [ 26%]
+tests/test_api_client.py::test_api_endpoints PASSED                      [ 31%]
+tests/test_api_simulation_fix.py::test_simulation_endpoint PASSED        [ 36%]
+tests/test_api_simulation_fix.py::test_compilation_endpoint PASSED       [ 42%]
+tests/test_api_simulation_fix.py::test_api_info PASSED                   [ 47%]
+tests/test_gpu_acceleration.py::test_gpu_acceleration PASSED             [ 52%]
+tests/test_ibm_quantum_simple.py::test_ibm_status PASSED                 [ 57%]
+tests/test_ibm_quantum_simple.py::test_ibm_backends PASSED               [ 63%]
+tests/test_ibm_quantum_simple.py::test_circuit_execution PASSED          [ 68%]
+tests/test_ibm_quantum_simple.py::test_with_token ERROR                  [ 73%]
+tests/test_logging_system.py::test_logging_system PASSED                 [ 78%]
+tests/test_simulator_direct.py::test_simulator_direct PASSED             [ 84%]
+tests/test_version_2_2_0.py::test_ibm_quantum_integration PASSED         [ 89%]
+tests/test_version_2_2_0.py::test_enhanced_caching_system PASSED         [ 94%]
+tests/test_version_2_2_0.py::test_api_integration PASSED                 [100%]
+
+==================================== ERRORS ====================================
+______________________ ERROR at setup of test_with_token _______________________
+file /Users/kappasutra/QUANTUM MEMORY/tests/test_ibm_quantum_simple.py, line 112
+  def test_with_token(token):
+E       fixture 'token' not found
+>       available fixtures: anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+/Users/kappasutra/QUANTUM MEMORY/tests/test_ibm_quantum_simple.py:112
+=============================== warnings summary ===============================
+tests/comprehensive_gpu_test.py::test_basic_acceleration
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/comprehensive_gpu_test.py::test_basic_acceleration returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/comprehensive_gpu_test.py::test_different_methods
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/comprehensive_gpu_test.py::test_different_methods returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/comprehensive_gpu_test.py::test_benchmarking
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/comprehensive_gpu_test.py::test_benchmarking returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/comprehensive_gpu_test.py::test_memory_optimization
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/comprehensive_gpu_test.py::test_memory_optimization returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/comprehensive_gpu_test.py::test_api_integration
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/comprehensive_gpu_test.py::test_api_integration returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_api_client.py::test_api_endpoints
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_api_client.py::test_api_endpoints returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_api_simulation_fix.py::test_simulation_endpoint
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_api_simulation_fix.py::test_simulation_endpoint returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_api_simulation_fix.py::test_compilation_endpoint
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_api_simulation_fix.py::test_compilation_endpoint returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_api_simulation_fix.py::test_api_info
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_api_simulation_fix.py::test_api_info returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_gpu_acceleration.py::test_gpu_acceleration
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_gpu_acceleration.py::test_gpu_acceleration returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_ibm_quantum_simple.py::test_ibm_status
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_ibm_quantum_simple.py::test_ibm_status returned {'connected': False, 'integration_ready': False, 'qiskit_available': True, 'qiskit_version': '2.0.0', 'token_provided': False}, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_ibm_quantum_simple.py::test_ibm_backends
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_ibm_quantum_simple.py::test_ibm_backends returned {'backends': [{'basis_gates': ['u1', 'u2', 'u3', 'cx', 'id', 'x', 'y', 'z', 'h', 's', 't'], 'coupling_map': [], 'least_busy': False, 'max_shots': 8192, 'name': 'qasm_simulator', 'num_qubits': 32, 'operational': True, 'pending_jobs': 0, 'simulator': True, 'type': 'simulator'}, {'basis_gates': ['u1', 'u2', 'u3', 'cx', 'id', 'x', 'y', 'z', 'h', 's', 't'], 'coupling_map': [], 'least_busy': False, 'max_shots': 8192, 'name': 'statevector_simulator', 'num_qubits': 32, 'operational': True, 'pending_jobs': 0, 'simulator': True, 'type': 'simulator'}, {'basis_gates': ['u1', 'u2', 'u3', 'cx', 'id', 'x', 'y', 'z', 'h', 's', 't'], 'coupling_map': [], 'least_busy': False, 'max_shots': 8192, 'name': 'unitary_simulator', 'num_qubits': 32, 'operational': True, 'pending_jobs': 0, 'simulator': True, 'type': 'simulator'}], 'connected': False, 'count': 3, 'success': True}, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_ibm_quantum_simple.py::test_circuit_execution
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_ibm_quantum_simple.py::test_circuit_execution returned {'backend': 'qasm_simulator', 'error_message': 'No IBM token provided', 'execution_time': 0.1, 'execution_type': 'local_simulator', 'job_id': 'local_1748465554', 'queue_time': 0.0, 'results': {'00 00': 50, '11 00': 50}, 'shots': 100, 'status': 'COMPLETED', 'success': True}, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_simulator_direct.py::test_simulator_direct
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_simulator_direct.py::test_simulator_direct returned {'11': 0.52, '01': 0.48}, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_version_2_2_0.py::test_ibm_quantum_integration
+tests/test_version_2_2_0.py::test_ibm_quantum_integration
+  /Users/kappasutra/QUANTUM MEMORY/quantum_memory_compiler/integration/qiskit_bridge.py:291: DeprecationWarning: Treating CircuitInstruction as an iterable is deprecated legacy behavior since Qiskit 1.2, and will be removed in Qiskit 3.0. Instead, use the `operation`, `qubits` and `clbits` named attributes.
+    if not any(instr.name == 'measure' for instr, _, _ in qiskit_circuit.data):
+
+tests/test_version_2_2_0.py::test_ibm_quantum_integration
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_version_2_2_0.py::test_ibm_quantum_integration returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_version_2_2_0.py::test_enhanced_caching_system
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_version_2_2_0.py::test_enhanced_caching_system returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+tests/test_version_2_2_0.py::test_api_integration
+  /Users/kappasutra/QUANTUM MEMORY/venv/lib/python3.12/site-packages/_pytest/python.py:163: PytestReturnNotNoneWarning: Expected None, but tests/test_version_2_2_0.py::test_api_integration returned True, which will be an error in a future version of pytest.  Did you mean to use `assert` instead of `return`?
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/test_ibm_quantum_simple.py::test_with_token
+================== 18 passed, 19 warnings, 1 error in 22.97s ===================
+
+--- STDERR ---

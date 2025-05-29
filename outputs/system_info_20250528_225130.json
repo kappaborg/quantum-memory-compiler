@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-05-28T22:51:30.593217",
+  "python_version": "Python 3.12.3",
+  "platform": {
+    "system": "Darwin",
+    "node": "grey.local",
+    "release": "24.5.0",
+    "version": "Darwin Kernel Version 24.5.0: Tue Apr 22 19:54:49 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T6000",
+    "machine": "arm64"
+  },
+  "cpu_count": 10,
+  "memory_total": 34359738368,
+  "disk_space": 994662584320
+}

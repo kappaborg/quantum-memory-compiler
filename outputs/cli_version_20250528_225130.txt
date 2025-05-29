@@ -1,0 +1,6 @@
+Command: python -c import quantum_memory_compiler; print(quantum_memory_compiler.__version__)
+Return Code: 0
+--- STDOUT ---
+0.1.0
+
+--- STDERR ---

@@ -4,6 +4,10 @@ Setup script for Quantum Memory Compiler
 ========================================
 
 Developer: kappasutra
+
+Quantum Memory Compiler - Setup Configuration
+Copyright (c) 2025 Quantum Memory Compiler Project
+Licensed under the Apache License, Version 2.0
 """
 
 from setuptools import setup, find_packages
@@ -30,7 +34,7 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Software Development :: Compilers",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -99,4 +103,5 @@ setup(
         "Documentation": "https://github.com/kappasutra/quantum_memory_compiler/wiki",
     },
     keywords="quantum computing, compiler, memory management, simulation, optimization",
+    license="Apache License 2.0",
 ) 
