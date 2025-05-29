@@ -94,12 +94,6 @@ Current deployment metrics:
 
 This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
 
-### Commercial Use
-
-For commercial licensing options and enterprise support, please contact:
-- Email: licensing@quantum-memory-compiler.org
-- Website: https://quantum-memory-compiler.org/commercial
-
 ### Patent Notice
 
 This software includes patentable algorithms for quantum memory optimization. Use in commercial products requires explicit permission.
@@ -134,7 +128,6 @@ All contributors must sign a Contributor License Agreement (CLA) to ensure:
 
 - **Issues**: [GitHub Issues](https://github.com/kappaborg/quantum-memory-compiler/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/kappaborg/quantum-memory-compiler/discussions)
-- **Email**: support@quantum-memory-compiler.org
 
 ## 🏆 Acknowledgments
 
@@ -147,7 +140,7 @@ All contributors must sign a Contributor License Agreement (CLA) to ensure:
 - **Lines of Code**: 15,000+ (Python + TypeScript)
 - **Test Coverage**: 85%+
 - **GitHub Stars**: ⭐ Star us if you find this useful!
-- **Active Development**: 6+ months continuous development
+- **Active Development**: 2+ months continuous development
 
 ---
 
