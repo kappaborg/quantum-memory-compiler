@@ -4,6 +4,10 @@
   "private": true,
   "homepage": "https://kappaborg.github.io/quantum-memory-compiler",
   "proxy": "http://localhost:5001",
+  "overrides": {
+    "nth-check": "^2.0.1",
+    "css-select": "^4.0.0"
+  },
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -20,7 +24,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "recharts": "^2.8.0",
     "socket.io-client": "^4.7.4",
     "typescript": "^4.9.5",
